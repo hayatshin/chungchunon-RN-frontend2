@@ -5,17 +5,12 @@ import {
   View,
   TouchableOpacity,
   Text,
-  SafeAreaView,
 } from "react-native";
 import { colors } from "../../colors";
 import Layout from "../../components/Layout";
-import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import ConfirmBtn from "../../components/ConfirmBtn";
-
-const BaseURL = "http://172.30.1.25:4000";
 
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
@@ -42,7 +37,8 @@ const GeneralInput = styled.TextInput`
   padding: 0px 20px;
 `;
 
-export default function CreateAccount({ navigation }) {
+export default function CreateAccount({ navigation, route }) {
+  console.log(route);
   const windowWidth = Dimensions.get("window").width;
   const [disable, setDisable] = useState(true);
 

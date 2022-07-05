@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   TextInput,
   Dimensions,
@@ -10,10 +10,7 @@ import {
 } from "react-native";
 import { colors } from "../../colors";
 import Layout from "../../components/Layout";
-import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
-import DropDownPicker from "react-native-dropdown-picker";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import ConfirmBtn from "../../components/ConfirmBtn";
 
 const BaseURL = "http://172.30.1.25:4000";
@@ -41,7 +38,8 @@ const VeriMessage = styled.View`
 
 const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
-export default function CreateAccount({ navigation }) {
+export default function CreateAccount({ navigation, route }) {
+  console.log(route);
   const windowWidth = Dimensions.get("window").width;
 
   const [phoneInserted, setPhoneInserted] = useState(false);
@@ -106,58 +104,74 @@ export default function CreateAccount({ navigation }) {
         setwaitMessage(false);
         setphone("");
         console.log(err);
-        alert(err);
+        setDisableConfirm(true);
+        goDownY.start();
+        setVerimessage("잘못된 휴대전화번호입니다.");
+        reset();
+        setretry(true);
       });
   };
 
   const verifyCode = () => {
     // Now check if the verfication inserted was the same as
     // the one sent
-    fetch(`${BaseURL}/check/${checkedNumber}/${verfication}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res);
-        if (res.status === "approved") {
-          setVerimessage("휴대전화번호가 인증되었습니다.");
-          setDisableConfirm(false);
-          // Navigate to another page  once phone is verfied
-        } else {
-          // Handle other error cases like network connection problems
-          setVerimessage("휴대전화번호 인증에 실패했습니다.");
-          reset();
-          setretry(true);
-        }
-      });
+    try {
+      fetch(`${BaseURL}/check/${checkedNumber}/${verfication}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === "approved") {
+            goDownY.start();
+            setVerimessage("휴대전화번호가 인증되었습니다.");
+            setDisableConfirm(false);
+            // Navigate to another page  once phone is verfied
+          } else {
+            // Handle other error cases like network connection problems
+            setDisableConfirm(true);
+            goDownY.start();
+            setVerimessage("휴대전화번호 인증에 실패했습니다.");
+            reset();
+            setretry(true);
+          }
+        });
+    } catch {
+      setDisableConfirm(true);
+      goDownY.start();
+      setVerimessage("휴대전화번호 인증에 실패했습니다.");
+      reset();
+      setretry(true);
+    }
   };
 
   // 인증 메세지 애니메이션
   const animateY = useRef(new Animated.Value(-100)).current;
   const goDownY = Animated.spring(animateY, {
     toValue: 0,
-    duration: 5000,
+    duration: 20000,
+    bounciness: 10,
     easing: Easing.linear,
     useNativeDriver: true,
   });
-
-  useEffect(() => {
-    if (verimessage === null || "") {
-      setDisableConfirm(true);
-    } else {
-      goDownY.start();
-    }
-  }, [verimessage]);
+  const opacityToOne = animateY.interpolate({
+    inputRange: [-100, 0],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
 
   // 확인 버튼
   const onConfirmBtn = () => {
     setVerimessage("");
     reset();
     setretry(true);
-    navigation.navigate("PersonalInfo");
+    navigation.navigate("PersonalInfo", {
+      birth: route.params.birth,
+      gender: route.params.gender,
+      phone,
+    });
   };
 
   return (
@@ -271,19 +285,28 @@ export default function CreateAccount({ navigation }) {
         </TouchableOpacity>
       </View>
       {/* 인증 확인 메세지 */}
-      {disableConfirm ? null : (
-        <AnimatedVeriMessage
-          windowWidth={windowWidth}
-          style={{ transform: [{ translateY: animateY }] }}
-          disableConfirm={disableConfirm}
-        >
-          <Text style={{ color: "white", fontSize: 18 }}>{verimessage}</Text>
-        </AnimatedVeriMessage>
-      )}
-      <View style={{ height: 60 }} />
+      <AnimatedVeriMessage
+        windowWidth={windowWidth}
+        style={{
+          transform: [{ translateY: animateY }],
+          opacity: opacityToOne,
+        }}
+        disableConfirm={disableConfirm}
+      >
+        <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+          {verimessage}
+        </Text>
+      </AnimatedVeriMessage>
+      <View style={{ height: 40 }} />
 
       {/* 확인 버튼 */}
-      <TouchableOpacity disabled={disableConfirm} onPress={onConfirmBtn}>
+      <TouchableOpacity
+        disabled={disableConfirm}
+        onPress={onConfirmBtn}
+        style={{
+          transform: [{ translateY: animateY }],
+        }}
+      >
         <ConfirmBtn text={"확인"} disable={disableConfirm} />
       </TouchableOpacity>
     </Layout>

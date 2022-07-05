@@ -1,18 +1,18 @@
-import React, { useCallback, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   TextInput,
   Dimensions,
   View,
   TouchableOpacity,
   Text,
-  SafeAreaView,
+  Animated,
+  Easing,
 } from "react-native";
+import { useForm } from "react-hook-form";
 import { colors } from "../../colors";
 import Layout from "../../components/Layout";
 import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
-import DropDownPicker from "react-native-dropdown-picker";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import ConfirmBtn from "../../components/ConfirmBtn";
 
 const InputHeader = styled.Text`
@@ -25,8 +25,107 @@ const InputHeader = styled.Text`
   margin-bottom: 10px;
 `;
 
+const VeriMessage = styled.View`
+  width: ${(props) => props.windowWidth * 0.6}px;
+  height: ${(props) => props.windowWidth * 0.2}px;
+  background-color: ${(props) =>
+    props.overfifty ? colors.mainColor : colors.gray};
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
+
 export default function BirthGender({ navigation }) {
   const windowWidth = Dimensions.get("window").width;
+  const [disableConfirm, setDisableConfirm] = useState(true);
+  const [overfifty, setOverfifty] = useState(true);
+  const [veriBox, setVeriBox] = useState(false);
+  const [verimessage, setVerimessage] = useState("");
+  const [birth, setBirth] = useState("");
+  const [gender, setGender] = useState("");
+
+  const { register, handleSubmit, setValue, getValues } = useForm();
+
+  const birthRef = useRef();
+  const genderRef = useRef();
+
+  // (birth.length === 6 && gender.length === 1)
+
+  const fillOut = (text, type) => {
+    if (type === "birth") {
+      setBirth(text);
+    } else {
+      setGender(text);
+    }
+  };
+
+  useEffect(() => {
+    if (birth.toString().length === 6 && gender.toString().length !== 1) {
+      setDisableConfirm(true);
+      setVeriBox(false);
+      genderRef.current.focus();
+    } else if (
+      birth.toString().length !== 6 &&
+      gender.toString().length === 1
+    ) {
+      setDisableConfirm(true);
+      setVeriBox(false);
+      birthRef.current.focus();
+    } else if (
+      birth.toString().length !== 6 &&
+      gender.toString().length !== 1
+    ) {
+      setDisableConfirm(true);
+      setVeriBox(false);
+    } else {
+      if (gender !== 1 && gender !== 2) {
+        goDownY.start();
+        setVeriBox(true);
+        setVerimessage("1 또는 2를 기입해주세요.");
+      } else {
+        setDisableConfirm(false);
+        let today = new Date();
+        const checkFifty =
+          today.getFullYear() - (19 + birth.toString().substring(0, 2)) + 1 >=
+          50;
+        if (checkFifty) {
+          goDownY.start();
+          setVeriBox(true);
+          setOverfifty(true);
+          setVerimessage("50세 이상 가입자는 글쓰기가 가능합니다.");
+        } else if (!checkFifty) {
+          goDownY.start();
+          setVeriBox(true);
+          setOverfifty(false);
+          setVerimessage("50세 이하 가입자는 글쓰기가 불가능합니다.");
+        }
+      }
+    }
+  }, [birth, gender]);
+
+  // 연령 안내 애니메이션
+  const animateY = useRef(new Animated.Value(-30)).current;
+  const goDownY = Animated.spring(animateY, {
+    toValue: 0,
+    duration: 20000,
+    easing: Easing.linear,
+    bounciness: 10,
+    useNativeDriver: true,
+  });
+  const opacityToOne = animateY.interpolate({
+    inputRange: [-30, 0],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  // 확인 버튼
+  const onConfirmBtn = () => {
+    navigation.navigate("PhoneVerification", { birth, gender });
+  };
+
   return (
     <Layout>
       {/* 생년월일 및 성별 */}
@@ -43,6 +142,12 @@ export default function BirthGender({ navigation }) {
       >
         {/* 생년월일 */}
         <TextInput
+          {...register("birth", {
+            required: "주민등록번호 앞 6자리를 입력해주세요.",
+          })}
+          ref={birthRef}
+          onChangeText={(text) => fillOut(parseInt(text), "birth")}
+          onSubmitEditing={fillOut}
           placeholder="581101"
           placeholderTextColor={colors.gray}
           keyboardType={"numeric"}
@@ -69,7 +174,14 @@ export default function BirthGender({ navigation }) {
         >
           {/* 성별 */}
           <TextInput
+            {...register("gender", {
+              required: "주민등록번호 뒤 1자리를 입력해주세요.",
+            })}
+            ref={genderRef}
+            onChangeText={(text) => fillOut(parseInt(text), "gender")}
+            onSubmitEditing={fillOut}
             placeholder="2"
+            maxLength={1}
             placeholderTextColor={colors.gray}
             keyboardType={"numeric"}
             style={{
@@ -90,11 +202,29 @@ export default function BirthGender({ navigation }) {
           <Ionicons name="ellipse" />
         </View>
       </View>
-      <View style={{ height: 60 }} />
-      <TouchableOpacity
-        onPress={() => navigation.navigate("PhoneVerification")}
+      {/* 인증 확인 메세지 */}
+      <AnimatedVeriMessage
+        windowWidth={windowWidth}
+        style={{
+          transform: [{ translateY: animateY }],
+          opacity: opacityToOne,
+        }}
+        disableConfirm={disableConfirm}
+        overfifty={overfifty}
       >
-        <ConfirmBtn text={"확인"} />
+        <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+          {verimessage}
+        </Text>
+      </AnimatedVeriMessage>
+      <View style={{ height: 40 }} />
+      <TouchableOpacity
+        disabled={disableConfirm}
+        onPress={onConfirmBtn}
+        style={{
+          transform: [{ translateY: animateY }],
+        }}
+      >
+        <ConfirmBtn text={"확인"} disable={disableConfirm} />
       </TouchableOpacity>
     </Layout>
   );
