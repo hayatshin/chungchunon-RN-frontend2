@@ -40,7 +40,7 @@ export default function Welcome({ navigation }) {
         <LogoFont>청춘온</LogoFont>
 
         {/* 회원가입 */}
-        <TouchableOpacity onPress={() => navigation.navigate("CreateAccount")}>
+        <TouchableOpacity onPress={() => navigation.navigate("BirthGender")}>
           <ConfirmBtn text={"회원가입"} />
         </TouchableOpacity>
 

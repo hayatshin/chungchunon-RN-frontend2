@@ -10,6 +10,24 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@apollo/client@^3.6.9":
+  "integrity" "sha512-Y1yu8qa2YeaCUBVuw08x8NHenFi0sw2I3KCu7Kw9mDSu86HmmtHJkCAifKVrN2iPgDTW/BbP3EpSV8/EQCcxZA=="
+  "resolved" "https://registry.npmjs.org/@apollo/client/-/client-3.6.9.tgz"
+  "version" "3.6.9"
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.1.1"
+    "@wry/context" "^0.6.0"
+    "@wry/equality" "^0.5.0"
+    "@wry/trie" "^0.3.0"
+    "graphql-tag" "^2.12.6"
+    "hoist-non-react-statics" "^3.3.2"
+    "optimism" "^0.16.1"
+    "prop-types" "^15.7.2"
+    "symbol-observable" "^4.0.0"
+    "ts-invariant" "^0.10.3"
+    "tslib" "^2.3.0"
+    "zen-observable-ts" "^1.2.5"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.18.6":
   "integrity" "sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q=="
   "resolved" "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.18.6.tgz"
@@ -1827,15 +1845,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@urql/core@>=2.3.1":
-  "integrity" "sha512-xXdcgb0H3nNTP4OfC+5T3CHJ0iz7Jj0QQYSYhN/hvKrzFnisPz2n6WXmvsHmMXk5bJHsr39kx4eOHcpsJuyCew=="
-  "resolved" "https://registry.npmjs.org/@urql/core/-/core-2.5.0.tgz"
-  "version" "2.5.0"
-  dependencies:
-    "@graphql-typed-document-node/core" "^3.1.1"
-    "wonka" "^4.0.14"
-
-"@urql/core@2.3.6":
+"@urql/core@>=2.3.1", "@urql/core@2.3.6":
   "integrity" "sha512-PUxhtBh7/8167HJK6WqBv6Z0piuiaZHQGYbhwpNL9aIQmLROPEdaUYkY4wh45wPQXcTpnd11l0q3Pw+TI11pdw=="
   "resolved" "https://registry.npmjs.org/@urql/core/-/core-2.3.6.tgz"
   "version" "2.3.6"
@@ -1850,6 +1860,27 @@
   dependencies:
     "@urql/core" ">=2.3.1"
     "wonka" "^4.0.14"
+
+"@wry/context@^0.6.0":
+  "integrity" "sha512-LOmVnY1iTU2D8tv4Xf6MVMZZ+juIJ87Kt/plMijjN20NMAXGmH4u8bS1t0uT74cZ5gwpocYueV58YwyI8y+GKw=="
+  "resolved" "https://registry.npmjs.org/@wry/context/-/context-0.6.1.tgz"
+  "version" "0.6.1"
+  dependencies:
+    "tslib" "^2.3.0"
+
+"@wry/equality@^0.5.0":
+  "integrity" "sha512-oVMxbUXL48EV/C0/M7gLVsoK6qRHPS85x8zECofEZOVvxGmIPLA9o5Z27cc2PoAyZz1S2VoM2A7FLAnpfGlneA=="
+  "resolved" "https://registry.npmjs.org/@wry/equality/-/equality-0.5.2.tgz"
+  "version" "0.5.2"
+  dependencies:
+    "tslib" "^2.3.0"
+
+"@wry/trie@^0.3.0":
+  "integrity" "sha512-WwB53ikYudh9pIorgxrkHKrQZcCqNM/Q/bDzZBffEaGUKGuHrRb3zZUT9Sh2qw9yogC7SsdRmQ1ER0pqvd3bfw=="
+  "resolved" "https://registry.npmjs.org/@wry/trie/-/trie-0.3.1.tgz"
+  "version" "0.3.1"
+  dependencies:
+    "tslib" "^2.3.0"
 
 "@xmldom/xmldom@~0.7.0":
   "integrity" "sha512-V3BIhmY36fXZ1OtVcI9W+FxQqxVLsPKcNjWigIaa81dLC9IolJl5Mt4Cvhmr0flUnjSpTdrbMTSbXqYqV5dT6A=="
@@ -3664,14 +3695,14 @@
   "resolved" "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.10.tgz"
   "version" "4.2.10"
 
-"graphql-tag@^2.10.1":
+"graphql-tag@^2.10.1", "graphql-tag@^2.12.6":
   "integrity" "sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg=="
   "resolved" "https://registry.npmjs.org/graphql-tag/-/graphql-tag-2.12.6.tgz"
   "version" "2.12.6"
   dependencies:
     "tslib" "^2.1.0"
 
-"graphql@^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0", "graphql@^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@15.8.0":
+"graphql@^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0", "graphql@^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^14.0.0 || ^15.0.0 || ^16.0.0", "graphql@^15.8.0", "graphql@15.8.0":
   "integrity" "sha512-5gghUc24tP9HRznNpV2+FIoq3xKkj5dTQqf4v0CpdPbFVwFkWoxOM+o+2OC9ZSvjEMTjfmG9QT+gcvggTwW1zw=="
   "resolved" "https://registry.npmjs.org/graphql/-/graphql-15.8.0.tgz"
   "version" "15.8.0"
@@ -3760,7 +3791,7 @@
   dependencies:
     "source-map" "^0.7.3"
 
-"hoist-non-react-statics@^3.0.0":
+"hoist-non-react-statics@^3.0.0", "hoist-non-react-statics@^3.3.2":
   "integrity" "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="
   "resolved" "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz"
   "version" "3.3.2"
@@ -5233,6 +5264,14 @@
     "is-docker" "^2.1.1"
     "is-wsl" "^2.2.0"
 
+"optimism@^0.16.1":
+  "integrity" "sha512-64i+Uw3otrndfq5kaoGNoY7pvOhSsjFEN4bdEFh80MWVk/dbgJfMv7VFDeCT8LxNAlEVhQmdVEbfE7X2nWNIIg=="
+  "resolved" "https://registry.npmjs.org/optimism/-/optimism-0.16.1.tgz"
+  "version" "0.16.1"
+  dependencies:
+    "@wry/context" "^0.6.0"
+    "@wry/trie" "^0.3.0"
+
 "ora@^3.4.0", "ora@3.4.0":
   "integrity" "sha512-eNwHudNbO1folBP3JsZ19v9azXWtQZjICdr3Q0TDPIaeBQ3mXLrh54wM+er0+hSp+dWKf+Z8KM58CYzEyIYxYg=="
   "resolved" "https://registry.npmjs.org/ora/-/ora-3.4.0.tgz"
@@ -5517,7 +5556,7 @@
     "kleur" "^3.0.3"
     "sisteransi" "^1.0.5"
 
-"prop-types@*", "prop-types@^15.6.0", "prop-types@^15.6.2":
+"prop-types@*", "prop-types@^15.6.0", "prop-types@^15.6.2", "prop-types@^15.7.2":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
   "resolved" "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   "version" "15.8.1"
@@ -5746,7 +5785,7 @@
     "object-assign" "^4.1.1"
     "react-is" "^16.12.0 || ^17.0.0"
 
-"react@*", "react@^16.0.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0", "react@^17.0.0", "react@>= 16.8.0", "react@>=17.0.1", "react@17.0.2":
+"react@*", "react@^16.0.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17.0.0", "react@>= 16.8.0", "react@>=17.0.1", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"
@@ -6527,6 +6566,11 @@
   "resolved" "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   "version" "1.0.0"
 
+"symbol-observable@^4.0.0":
+  "integrity" "sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ=="
+  "resolved" "https://registry.npmjs.org/symbol-observable/-/symbol-observable-4.0.0.tgz"
+  "version" "4.0.0"
+
 "tar@^6.0.2", "tar@^6.0.5":
   "integrity" "sha512-an/KZQzQUkZCkuoAA64hM92X0Urb6VpRhAFllDzz44U2mcD5scmT3zBc4VgVpkugF580+DQn8eAFSyoQt0tznA=="
   "resolved" "https://registry.npmjs.org/tar/-/tar-6.1.11.tgz"
@@ -6703,12 +6747,19 @@
   "resolved" "https://registry.npmjs.org/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz"
   "version" "0.1.13"
 
+"ts-invariant@^0.10.3":
+  "integrity" "sha512-uivwYcQaxAucv1CzRp2n/QdYPo4ILf9VXgH19zEIjFx2EJufV16P0JtJVpYHy89DItG6Kwj2oIUjrcK5au+4tQ=="
+  "resolved" "https://registry.npmjs.org/ts-invariant/-/ts-invariant-0.10.3.tgz"
+  "version" "0.10.3"
+  dependencies:
+    "tslib" "^2.1.0"
+
 "tslib@^1.10.0":
   "integrity" "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   "version" "1.14.1"
 
-"tslib@^2.0.1", "tslib@^2.1.0":
+"tslib@^2.0.1", "tslib@^2.1.0", "tslib@^2.3.0":
   "integrity" "sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ=="
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.4.0.tgz"
   "version" "2.4.0"
@@ -7132,3 +7183,15 @@
   "integrity" "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
   "resolved" "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   "version" "0.1.0"
+
+"zen-observable-ts@^1.2.5":
+  "integrity" "sha512-QZWQekv6iB72Naeake9hS1KxHlotfRpe+WGNbNx5/ta+R3DNjVO2bswf63gXlWDcs+EMd7XY8HfVQyP1X6T4Zg=="
+  "resolved" "https://registry.npmjs.org/zen-observable-ts/-/zen-observable-ts-1.2.5.tgz"
+  "version" "1.2.5"
+  dependencies:
+    "zen-observable" "0.8.15"
+
+"zen-observable@0.8.15":
+  "integrity" "sha512-PQ2PC7R9rslx84ndNBZB/Dkv8V8fZEpk83RLgXtYd0fwUgEjseMn1Dgajh2x6S8QbZAFa9p2qVCEuYZNgve0dQ=="
+  "resolved" "https://registry.npmjs.org/zen-observable/-/zen-observable-0.8.15.tgz"
+  "version" "0.8.15"

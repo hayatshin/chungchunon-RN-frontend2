@@ -3,8 +3,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Welcome from "../screens/Welcome";
 import Login from "../screens/Login";
 import { colors } from "../colors";
-import CreateAccount from "../screens/CreateAccount";
-
+import BirthGender from "../screens/createAccount/BirthGender";
+import PhoneVerification from "../screens/createAccount/PhoneVerification";
+import PersonalInfo from "../screens/createAccount/PersonalInfo";
 const Stack = createNativeStackNavigator();
 
 export default function LoggedoutNav() {
@@ -40,8 +41,34 @@ export default function LoggedoutNav() {
             fontWeight: "700",
           },
         }}
-        name="CreateAccount"
-        component={CreateAccount}
+        name="BirthGender"
+        component={BirthGender}
+      />
+      <Stack.Screen
+        options={{
+          title: "회원가입",
+          headerShadowVisible: false,
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        name="PhoneVerification"
+        component={PhoneVerification}
+      />
+      <Stack.Screen
+        options={{
+          title: "회원가입",
+          headerShadowVisible: false,
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        name="PersonalInfo"
+        component={PersonalInfo}
       />
     </Stack.Navigator>
   );
