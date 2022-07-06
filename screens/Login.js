@@ -13,12 +13,15 @@ import Layout from "../components/Layout";
 import styled from "styled-components/native";
 import ConfirmBtn from "../components/ConfirmBtn";
 import { gql, useMutation } from "@apollo/client";
+import { useDispatch, useSelector } from "react-redux";
+import { logIn } from "../redux/usersSlice";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {
     login(cellphone: $cellphone) {
       ok
       error
+      token
     }
   }
 `;
@@ -48,9 +51,10 @@ const VeriMessage = styled.View`
 
 const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
-export default function Login({ navigation, route }) {
+export default function Login(props) {
+  const { isLoggedIn, token } = useSelector((state) => state.usersReducer);
+  const dispatch = useDispatch();
   const windowWidth = Dimensions.get("window").width;
-  const [loginMutation, { loading, data }] = useMutation(LOGIN_MUATION);
 
   const [veriBox, setVeriBox] = useState(false);
   const [phoneInserted, setPhoneInserted] = useState(false);
@@ -59,7 +63,7 @@ export default function Login({ navigation, route }) {
   const [waitMessage, setwaitMessage] = useState(false);
   const [checkedNumber, setcheckedNumber] = useState("");
   const [retry, setretry] = useState(false);
-  const [disableConfirm, setDisableConfirm] = useState(false);
+  const [disableConfirm, setDisableConfirm] = useState(true);
   const [verimessage, setVerimessage] = useState("");
 
   const reset = () => {
@@ -177,7 +181,13 @@ export default function Login({ navigation, route }) {
 
   // 확인 버튼
 
-  const mutationComplete = () => {};
+  const mutationComplete = (data) => {
+    dispatch(logIn(data.login.token));
+  };
+
+  const [loginMutation, { loading, data }] = useMutation(LOGIN_MUATION, {
+    onCompleted: mutationComplete,
+  });
 
   const onConfirmBtn = () => {
     setVerimessage("");

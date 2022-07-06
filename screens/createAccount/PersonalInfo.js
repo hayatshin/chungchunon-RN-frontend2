@@ -17,6 +17,8 @@ import { openRegionList } from "../../openRegionList";
 import * as ImagePicker from "expo-image-picker";
 import { gql, useMutation } from "@apollo/client";
 import { ReactNativeFile } from "apollo-upload-client";
+import { useDispatch } from "react-redux";
+import { logIn } from "../../redux/usersSlice";
 
 const CREATE_ACCOUNT_MUATION = gql`
   mutation createAccount(
@@ -41,6 +43,16 @@ const CREATE_ACCOUNT_MUATION = gql`
     ) {
       ok
       error
+    }
+  }
+`;
+
+const LOGIN_MUATION = gql`
+  mutation Login($cellphone: String) {
+    login(cellphone: $cellphone) {
+      ok
+      error
+      token
     }
   }
 `;
@@ -71,6 +83,7 @@ const GeneralInput = styled.TextInput`
 `;
 
 export default function PersonalInfo({ navigation, route }) {
+  const dispatch = useDispatch();
   const { birth, gender, phone } = route.params;
   const windowWidth = Dimensions.get("window").width;
   const [disableConfirm, setDisableConfirm] = useState(true);
@@ -125,11 +138,28 @@ export default function PersonalInfo({ navigation, route }) {
 
   // mutation
 
-  const mutationComplete = () => {};
+  const loginComplete = (data) => {
+    dispatch(logIn(data.login.token));
+  };
 
-  const [createAccountMutation, { loading, data }] = useMutation(
-    CREATE_ACCOUNT_MUATION
-  );
+  const [loginMutation, { data: loginData }] = useMutation(LOGIN_MUATION, {
+    onCompleted: loginComplete,
+  });
+
+  const accountComplete = (data) => {
+    loginMutation({
+      variables: {
+        cellphone: phone,
+      },
+    });
+  };
+
+  const [
+    createAccountMutation,
+    { loading: accountLoading, data: accountData },
+  ] = useMutation(CREATE_ACCOUNT_MUATION, {
+    onCompleted: accountComplete,
+  });
 
   const fillOutBtn = () => {
     const avatarModified = new ReactNativeFile({
@@ -139,7 +169,7 @@ export default function PersonalInfo({ navigation, route }) {
     });
     const birthModified = birth.toString();
     const genderModified = gender === 1 ? "남성" : "여성";
-    if (!loading) {
+    if (!accountLoading) {
       createAccountMutation({
         variables: {
           birthday: birthModified,

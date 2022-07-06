@@ -47,7 +47,7 @@ export default function Welcome({ navigation }) {
         <View style={{ height: 15 }} />
 
         {/* 로그인 */}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <ConfirmBtn text={"로그인"} />
         </TouchableOpacity>
 
