@@ -27,9 +27,9 @@ const InputHeader = styled.Text`
 
 const VeriMessage = styled.View`
   width: ${(props) => props.windowWidth * 0.6}px;
-  height: ${(props) => props.windowWidth * 0.2}px;
+  height: ${(props) => (props.veriBox ? props.windowWidth * 0.2 : 0)}px;
   background-color: ${(props) =>
-    props.disableConfirm ? colors.gray : colors.mainColor};
+    props.disableConfirm ? colors.lightGray : colors.lightMain};
   border-radius: 5px;
   display: flex;
   justify-content: center;
@@ -38,17 +38,17 @@ const VeriMessage = styled.View`
 
 const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
-export default function CreateAccount({ navigation, route }) {
-  console.log(route);
+export default function PhoneVerification({ navigation, route }) {
   const windowWidth = Dimensions.get("window").width;
 
+  const [veriBox, setVeriBox] = useState(false);
   const [phoneInserted, setPhoneInserted] = useState(false);
   const [phone, setphone] = useState("");
   const [verfication, setverfication] = useState("");
   const [waitMessage, setwaitMessage] = useState(false);
   const [checkedNumber, setcheckedNumber] = useState("");
   const [retry, setretry] = useState(false);
-  const [disableConfirm, setDisableConfirm] = useState(true);
+  const [disableConfirm, setDisableConfirm] = useState(false);
   const [verimessage, setVerimessage] = useState("");
 
   const reset = () => {
@@ -93,7 +93,6 @@ export default function CreateAccount({ navigation, route }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         if (res.status === "pending") {
           setcheckedNumber(phone);
           setwaitMessage(false);
@@ -106,6 +105,7 @@ export default function CreateAccount({ navigation, route }) {
         console.log(err);
         setDisableConfirm(true);
         goDownY.start();
+        setVeriBox(true);
         setVerimessage("잘못된 휴대전화번호입니다.");
         reset();
         setretry(true);
@@ -126,6 +126,7 @@ export default function CreateAccount({ navigation, route }) {
         .then((res) => {
           if (res.status === "approved") {
             goDownY.start();
+            setVeriBox(true);
             setVerimessage("휴대전화번호가 인증되었습니다.");
             setDisableConfirm(false);
             // Navigate to another page  once phone is verfied
@@ -133,6 +134,7 @@ export default function CreateAccount({ navigation, route }) {
             // Handle other error cases like network connection problems
             setDisableConfirm(true);
             goDownY.start();
+            setVeriBox(true);
             setVerimessage("휴대전화번호 인증에 실패했습니다.");
             reset();
             setretry(true);
@@ -148,7 +150,7 @@ export default function CreateAccount({ navigation, route }) {
   };
 
   // 인증 메세지 애니메이션
-  const animateY = useRef(new Animated.Value(-100)).current;
+  const animateY = useRef(new Animated.Value(-30)).current;
   const goDownY = Animated.spring(animateY, {
     toValue: 0,
     duration: 20000,
@@ -157,7 +159,7 @@ export default function CreateAccount({ navigation, route }) {
     useNativeDriver: true,
   });
   const opacityToOne = animateY.interpolate({
-    inputRange: [-100, 0],
+    inputRange: [-30, 0],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
@@ -172,8 +174,9 @@ export default function CreateAccount({ navigation, route }) {
       gender: route.params.gender,
       phone,
     });
+    setDisableConfirm(true);
+    setVeriBox(false);
   };
-
   return (
     <Layout>
       {/* 휴대전화번호 */}
@@ -292,8 +295,17 @@ export default function CreateAccount({ navigation, route }) {
           opacity: opacityToOne,
         }}
         disableConfirm={disableConfirm}
+        veriBox={veriBox}
       >
-        <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+        <Text
+          style={{
+            fontSize: 18,
+            textAlign: "center",
+            lineHeight: 30,
+            color: colors.gray,
+            fontWeight: "700",
+          }}
+        >
           {verimessage}
         </Text>
       </AnimatedVeriMessage>

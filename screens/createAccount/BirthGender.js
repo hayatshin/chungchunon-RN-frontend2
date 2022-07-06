@@ -27,9 +27,9 @@ const InputHeader = styled.Text`
 
 const VeriMessage = styled.View`
   width: ${(props) => props.windowWidth * 0.6}px;
-  height: ${(props) => props.windowWidth * 0.2}px;
+  height: ${(props) => (props.veriBox ? props.windowWidth * 0.2 : 0)}px;
   background-color: ${(props) =>
-    props.overfifty ? colors.mainColor : colors.gray};
+    props.overfifty ? colors.lightMain : colors.lightGray};
   border-radius: 5px;
   display: flex;
   justify-content: center;
@@ -40,13 +40,12 @@ const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
 export default function BirthGender({ navigation }) {
   const windowWidth = Dimensions.get("window").width;
-  const [disableConfirm, setDisableConfirm] = useState(true);
   const [overfifty, setOverfifty] = useState(true);
   const [veriBox, setVeriBox] = useState(false);
   const [verimessage, setVerimessage] = useState("");
   const [birth, setBirth] = useState("");
   const [gender, setGender] = useState("");
-
+  const [disableConfirm, setDisableConfirm] = useState(true);
   const { register, handleSubmit, setValue, getValues } = useForm();
 
   const birthRef = useRef();
@@ -82,21 +81,16 @@ export default function BirthGender({ navigation }) {
       setVeriBox(false);
     } else {
       if (gender !== 1 && gender !== 2) {
+        setVerimessage("1 또는 2를 기입해주세요.");
         goDownY.start();
         setVeriBox(true);
-        setVerimessage("1 또는 2를 기입해주세요.");
       } else {
         setDisableConfirm(false);
         let today = new Date();
         const checkFifty =
           today.getFullYear() - (19 + birth.toString().substring(0, 2)) + 1 >=
           50;
-        if (checkFifty) {
-          goDownY.start();
-          setVeriBox(true);
-          setOverfifty(true);
-          setVerimessage("50세 이상 가입자는 글쓰기가 가능합니다.");
-        } else if (!checkFifty) {
+        if (!checkFifty) {
           goDownY.start();
           setVeriBox(true);
           setOverfifty(false);
@@ -124,6 +118,8 @@ export default function BirthGender({ navigation }) {
   // 확인 버튼
   const onConfirmBtn = () => {
     navigation.navigate("PhoneVerification", { birth, gender });
+    setDisableConfirm(true);
+    setVeriBox(false);
   };
 
   return (
@@ -209,10 +205,18 @@ export default function BirthGender({ navigation }) {
           transform: [{ translateY: animateY }],
           opacity: opacityToOne,
         }}
-        disableConfirm={disableConfirm}
+        veriBox={veriBox}
         overfifty={overfifty}
       >
-        <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+        <Text
+          style={{
+            fontSize: 18,
+            textAlign: "center",
+            lineHeight: 30,
+            color: colors.gray,
+            fontWeight: "700",
+          }}
+        >
           {verimessage}
         </Text>
       </AnimatedVeriMessage>

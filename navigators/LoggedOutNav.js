@@ -6,6 +6,7 @@ import { colors } from "../colors";
 import BirthGender from "../screens/createAccount/BirthGender";
 import PhoneVerification from "../screens/createAccount/PhoneVerification";
 import PersonalInfo from "../screens/createAccount/PersonalInfo";
+
 const Stack = createNativeStackNavigator();
 
 export default function LoggedoutNav() {
