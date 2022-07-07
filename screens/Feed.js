@@ -95,6 +95,7 @@ export default function Feed() {
     <View
       style={{
         marginTop: StatusBar.currentHeight,
+        paddingBottom: StatusBar.currentHeight,
       }}
     >
       <NotiBox />

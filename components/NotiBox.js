@@ -1,8 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 
 export default function NotiBox() {
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -16,6 +18,7 @@ export default function NotiBox() {
     >
       {/* 분홍 박스 */}
       <TouchableOpacity
+        onPress={() => navigation.navigate("WriteFeed")}
         style={{
           width: "90%",
           height: 75,

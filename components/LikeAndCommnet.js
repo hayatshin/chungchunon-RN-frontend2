@@ -2,8 +2,10 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function LikeAndCommnet({ likeNumber, commentNumber }) {
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -28,7 +30,7 @@ export default function LikeAndCommnet({ likeNumber, commentNumber }) {
             style={{
               color: colors.mainColor,
               fontWeight: "700",
-              fontSize: 25,
+              fontSize: 35,
               marginRight: 5,
             }}
             name="heart-outline"
@@ -46,11 +48,15 @@ export default function LikeAndCommnet({ likeNumber, commentNumber }) {
       </TouchableOpacity>
       {/* 댓글 */}
       <TouchableOpacity
+        onPress={() => navigation.navigate("Comment")}
         style={{
           backgroundColor: colors.lightMain,
-          paddingHorizontal: 5,
-          paddingVertical: 2,
-          borderRadius: 5,
+          paddingHorizontal: 8,
+          paddingVertical: 1,
+          borderRadius: 10,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <Text
