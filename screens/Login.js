@@ -15,6 +15,7 @@ import ConfirmBtn from "../components/ConfirmBtn";
 import { gql, useMutation } from "@apollo/client";
 import { useDispatch, useSelector } from "react-redux";
 import { logIn } from "../redux/usersSlice";
+import { TWILLIO_BASE_URL } from "@env";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {
@@ -25,8 +26,6 @@ const LOGIN_MUATION = gql`
     }
   }
 `;
-
-const BaseURL = "http://172.30.1.25:4000";
 
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
@@ -51,7 +50,7 @@ const VeriMessage = styled.View`
 
 const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
-export default function Login(props) {
+export default function Login({ navigation }) {
   const { isLoggedIn, token } = useSelector((state) => state.usersReducer);
   const dispatch = useDispatch();
   const windowWidth = Dimensions.get("window").width;
@@ -100,7 +99,7 @@ export default function Login(props) {
     setPhoneInserted(true);
     setwaitMessage(true);
     // send verfication code to phone number
-    await fetch(`${BaseURL}/verify/${phone}`, {
+    await fetch(`${TWILLIO_BASE_URL}/verify/${phone}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +130,7 @@ export default function Login(props) {
     // Now check if the verfication inserted was the same as
     // the one sent
     try {
-      fetch(`${BaseURL}/check/${checkedNumber}/${verfication}`, {
+      fetch(`${TWILLIO_BASE_URL}/check/${checkedNumber}/${verfication}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -183,6 +182,7 @@ export default function Login(props) {
 
   const mutationComplete = (data) => {
     dispatch(logIn(data.login.token));
+    navigation.navigate("LoggedInNav");
   };
 
   const [loginMutation, { loading, data }] = useMutation(LOGIN_MUATION, {

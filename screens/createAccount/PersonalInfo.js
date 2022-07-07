@@ -140,6 +140,7 @@ export default function PersonalInfo({ navigation, route }) {
 
   const loginComplete = (data) => {
     dispatch(logIn(data.login.token));
+    navigation.navigate("LoggedInNav");
   };
 
   const [loginMutation, { data: loginData }] = useMutation(LOGIN_MUATION, {

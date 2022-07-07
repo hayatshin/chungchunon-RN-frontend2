@@ -1,13 +1,18 @@
 import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Feed from "../screens/Feed";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import TabsNav from "./LoggedInTabsNav";
+import LoggedInTabsNav from "./LoggedInTabsNav";
 
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function LoggedInNav() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Feed" component={Feed} />
-    </Tab.Navigator>
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Tabs"
+        options={{ headerShown: false }}
+        component={LoggedInTabsNav}
+      />
+    </Stack.Navigator>
   );
 }

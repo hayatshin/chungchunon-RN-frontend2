@@ -12,8 +12,7 @@ import { colors } from "../../colors";
 import Layout from "../../components/Layout";
 import styled from "styled-components/native";
 import ConfirmBtn from "../../components/ConfirmBtn";
-
-const BaseURL = "http://172.30.1.25:4000";
+import { TWILLIO_BASE_URL } from "@env";
 
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
@@ -85,7 +84,7 @@ export default function PhoneVerification({ navigation, route }) {
     setPhoneInserted(true);
     setwaitMessage(true);
     // send verfication code to phone number
-    await fetch(`${BaseURL}/verify/${phone}`, {
+    await fetch(`${TWILLIO_BASE_URL}/verify/${phone}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -116,7 +115,7 @@ export default function PhoneVerification({ navigation, route }) {
     // Now check if the verfication inserted was the same as
     // the one sent
     try {
-      fetch(`${BaseURL}/check/${checkedNumber}/${verfication}`, {
+      fetch(`${TWILLIO_BASE_URL}/check/${checkedNumber}/${verfication}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
