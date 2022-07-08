@@ -3,9 +3,60 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { gql, useMutation } from "@apollo/client";
 
-export default function LikeAndCommnet({ likeNumber, commentNumber }) {
+const TOGGLE_LIKE_MUTATION = gql`
+  mutation toggleLike($id: Int!) {
+    toggleLike(id: $id) {
+      ok
+      error
+    }
+  }
+`;
+
+export default function LikeAndCommnet({
+  isLiked,
+  likeNumber,
+  commentNumber,
+  feedId,
+}) {
   const navigation = useNavigation();
+
+  // toggleLike
+
+  const updateToggleLike = (cache, result) => {
+    const {
+      data: {
+        toggleLike: { ok },
+      },
+    } = result;
+
+    if (ok) {
+      const cacheFeedId = `Feed:${feedId}`;
+      cache.modify({
+        id: cacheFeedId,
+        fields: {
+          isLiked(prev) {
+            return !prev;
+          },
+          likeNumber(prev) {
+            if (isLiked) {
+              return prev - 1;
+            }
+            return prev + 1;
+          },
+        },
+      });
+    }
+  };
+
+  const [toggleLikeMutation, { data }] = useMutation(TOGGLE_LIKE_MUTATION, {
+    variables: {
+      id: parseInt(feedId),
+    },
+    update: updateToggleLike,
+  });
+
   return (
     <View
       style={{
@@ -17,7 +68,7 @@ export default function LikeAndCommnet({ likeNumber, commentNumber }) {
       }}
     >
       {/* 좋아요 */}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={toggleLikeMutation}>
         <View
           style={{
             display: "flex",
@@ -33,7 +84,7 @@ export default function LikeAndCommnet({ likeNumber, commentNumber }) {
               fontSize: 35,
               marginRight: 5,
             }}
-            name="heart-outline"
+            name={isLiked ? "heart" : "heart-outline"}
           />
           <Text
             style={{

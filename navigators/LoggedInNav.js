@@ -4,16 +4,33 @@ import LoggedInTabsNav from "./LoggedInTabsNav";
 import WriteFeed from "../screens/WriteFeed";
 import { colors } from "../colors";
 import Comment from "../screens/Comment";
+import UploadNav from "./UploadNav";
 
 const Stack = createNativeStackNavigator();
 
 export default function LoggedInNav() {
   return (
-    <Stack.Navigator initialRouteName="Tabs">
+    <Stack.Navigator
+      initialRouteName="Tabs"
+      screenOptions={{
+        presentation: "transparentModal",
+        cardStyle: {
+          backgroundColor: "transparent",
+          opacity: 0.3,
+        },
+        cardOverlayEnabled: true,
+        cardOverlay: true,
+      }}
+    >
       <Stack.Screen
         name="Tabs"
         options={{ headerShown: false }}
         component={LoggedInTabsNav}
+      />
+      <Stack.Screen
+        name="UploadNav"
+        options={{ headerShown: false }}
+        component={UploadNav}
       />
       <Stack.Screen
         name="WriteFeed"
@@ -33,7 +50,10 @@ export default function LoggedInNav() {
         options={{
           title: "",
           headerShadowVisible: false,
-          headerTintColor: colors.mainColor,
+          headerStyle: {
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+          },
+          headerTintColor: colors.lightMain,
           headerTitleStyle: {
             fontFamily: "Spoqa",
             fontWeight: "700",

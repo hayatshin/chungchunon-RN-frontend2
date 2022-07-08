@@ -17,8 +17,7 @@ import { openRegionList } from "../../openRegionList";
 import * as ImagePicker from "expo-image-picker";
 import { gql, useMutation } from "@apollo/client";
 import { ReactNativeFile } from "apollo-upload-client";
-import { useDispatch } from "react-redux";
-import { logIn } from "../../redux/usersSlice";
+import { logUserIn } from "../../apollo";
 
 const CREATE_ACCOUNT_MUATION = gql`
   mutation createAccount(
@@ -83,7 +82,6 @@ const GeneralInput = styled.TextInput`
 `;
 
 export default function PersonalInfo({ navigation, route }) {
-  const dispatch = useDispatch();
   const { birth, gender, phone } = route.params;
   const windowWidth = Dimensions.get("window").width;
   const [disableConfirm, setDisableConfirm] = useState(true);
@@ -139,8 +137,7 @@ export default function PersonalInfo({ navigation, route }) {
   // mutation
 
   const loginComplete = (data) => {
-    dispatch(logIn(data.login.token));
-    navigation.navigate("LoggedInNav");
+    logUserIn(data.login.token);
   };
 
   const [loginMutation, { data: loginData }] = useMutation(LOGIN_MUATION, {

@@ -2,8 +2,18 @@ import React from "react";
 import { View, Text, Image } from "react-native";
 import { colors } from "../colors";
 
-export default function WriterBox({ writerAvatar, writerName, writeTime }) {
-  const createdTime = new Date(+writeTime);
+export default function WriterBox({
+  writerAvatar,
+  writerName,
+  writeTime,
+  editTime,
+}) {
+  let createdTime = null;
+  if (writeTime === editTime) {
+    createdTime = new Date(+writeTime);
+  } else {
+    createdTime = new Date(+editTime);
+  }
   const dmonth = createdTime.getMonth() + 1;
   const ampm = createdTime.getHours() >= 12 ? "오후 " : "오전 ";
   const hours = createdTime.getHours() == 12 ? 12 : createdTime.getHours() % 12;
@@ -54,7 +64,9 @@ export default function WriterBox({ writerAvatar, writerName, writeTime }) {
             fontWeight: "600",
           }}
         >
-          {completeCreatedTime} 글 작성
+          {writeTime === editTime
+            ? `${completeCreatedTime} 글 작성`
+            : `${completeCreatedTime} 글 수정`}
         </Text>
       </View>
     </View>

@@ -1,19 +1,18 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useState } from "react";
 import {
   View,
   Text,
   FlatList,
   Dimensions,
-  StatusBar,
   Image,
   TouchableOpacity,
 } from "react-native";
-import { colors } from "../colors";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndCommnet from "../components/LikeAndCommnet";
 import NotiBox from "../components/NotiBox";
 import WriterBox from "../components/WriterBox";
+import Constants from "expo-constants";
 
 const SEE_ALL_FEEDS_QUERY = gql`
   query seeAllFeeds($offset: Int!) {
@@ -48,6 +47,8 @@ const SEE_ALL_FEEDS_QUERY = gql`
 export default function Feed() {
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
+
+  // seeAllFeeds
   const { data, loading, refetch, fetchMore } = useQuery(SEE_ALL_FEEDS_QUERY, {
     variables: {
       offset: 0,
@@ -66,6 +67,7 @@ export default function Feed() {
           writerAvatar={feed?.user?.avatar}
           writerName={feed?.user?.name}
           writeTime={feed?.createdAt}
+          editTime={feed?.updatedAt}
         />
         {/* 이미지 */}
         <ImageSwiper photosArray={feed?.photos} />
@@ -74,6 +76,8 @@ export default function Feed() {
           <LikeAndCommnet
             likeNumber={feed?.likeNumber}
             commentNumber={feed?.commentNumber}
+            feedId={feed?.id}
+            isLiked={feed?.isLiked}
           />
           {/* 글 */}
           <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
@@ -90,12 +94,11 @@ export default function Feed() {
       </View>
     );
   };
-
   return (
     <View
       style={{
-        marginTop: StatusBar.currentHeight,
-        paddingBottom: StatusBar.currentHeight,
+        flex: 1,
+        marginTop: Constants.statusBarHeight,
       }}
     >
       <NotiBox />

@@ -78,7 +78,11 @@ export default function WriteFeed({ navigation }) {
             source={{ uri: data?.me?.avatar }}
           />
           {/* 사진 올리기 버튼 */}
-          <SmallBtn text={"사진 올리기"} color={"black"} />
+          <SmallBtn
+            text={"사진 올리기"}
+            color={"black"}
+            pressFunction={() => navigation.navigate("UploadNav")}
+          />
         </View>
 
         {/* 글쓰기 창 */}

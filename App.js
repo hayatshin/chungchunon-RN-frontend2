@@ -5,16 +5,16 @@ import * as SplashScreen from "expo-splash-screen";
 import * as Font from "expo-font";
 import { Asset } from "expo-asset";
 import { NavigationContainer } from "@react-navigation/native";
-import { ApolloProvider } from "@apollo/client";
-import client from "./apollo";
-import { Provider, useSelector } from "react-redux";
-import store, { persistor } from "./redux/store";
-import { PersistGate } from "redux-persist/integration/react";
-import HomeNav from "./navigators/HomeNav";
+import { ApolloProvider, useReactiveVar } from "@apollo/client";
+import client, { cache, isLoggedInVar, tokenVar } from "./apollo";
+import { AsyncStorageWrapper, persistCache } from "apollo3-cache-persist";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoggedInNav from "./navigators/LoggedInNav";
+import LoggedoutNav from "./navigators/LoggedOutNav";
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const isLoggedIn = useReactiveVar(isLoggedInVar);
 
   useEffect(() => {
     async function prepare() {
@@ -40,6 +40,15 @@ export default function App() {
             return setTimeout(resolve, 2000);
           }
         );
+        const token = await AsyncStorage.getItem("token");
+        if (token) {
+          isLoggedInVar(true);
+          tokenVar(token);
+        }
+        await persistCache({
+          cache,
+          storage: new AsyncStorageWrapper(AsyncStorage),
+        });
       } catch (e) {
         console.warn(e);
       } finally {
@@ -66,15 +75,10 @@ export default function App() {
 
   return (
     <ApolloProvider client={client}>
-      <Provider store={store}>
-        <PersistGate persistor={persistor}>
-          <NavigationContainer>
-            <View onLayout={onLayoutRootView}></View>
-            <HomeNav />
-            {/* {loggedIn ? <LoggedInNav /> : <LoggedoutNav />} */}
-          </NavigationContainer>
-        </PersistGate>
-      </Provider>
+      <NavigationContainer>
+        <View onLayout={onLayoutRootView}></View>
+        {isLoggedIn ? <LoggedInNav /> : <LoggedoutNav />}
+      </NavigationContainer>
     </ApolloProvider>
   );
 }

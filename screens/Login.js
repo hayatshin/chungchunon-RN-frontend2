@@ -13,9 +13,8 @@ import Layout from "../components/Layout";
 import styled from "styled-components/native";
 import ConfirmBtn from "../components/ConfirmBtn";
 import { gql, useMutation } from "@apollo/client";
-import { useDispatch, useSelector } from "react-redux";
-import { logIn } from "../redux/usersSlice";
 import { TWILLIO_BASE_URL } from "@env";
+import { logUserIn } from "../apollo";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {
@@ -51,8 +50,6 @@ const VeriMessage = styled.View`
 const AnimatedVeriMessage = Animated.createAnimatedComponent(VeriMessage);
 
 export default function Login({ navigation }) {
-  const { isLoggedIn, token } = useSelector((state) => state.usersReducer);
-  const dispatch = useDispatch();
   const windowWidth = Dimensions.get("window").width;
 
   const [veriBox, setVeriBox] = useState(false);
@@ -181,7 +178,7 @@ export default function Login({ navigation }) {
   // 확인 버튼
 
   const mutationComplete = (data) => {
-    dispatch(logIn(data.login.token));
+    logUserIn(data.login.token);
     navigation.navigate("LoggedInNav");
   };
 
