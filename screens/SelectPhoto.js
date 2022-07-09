@@ -16,7 +16,8 @@ import NextBtn from "../components/NextBtn";
 import PrevBtn from "../components/PrevBtn";
 import SmallBtn from "../components/SmallBtn";
 
-export default function SelectPhoto({ navigation }) {
+export default function SelectPhoto({ navigation, route }) {
+  const caption = route?.params?.caption;
   const numColumns = 3;
   const { width: windowWidth } = Dimensions.get("window");
   const [permission, setPermission] = useState(false);
@@ -38,15 +39,24 @@ export default function SelectPhoto({ navigation }) {
           >
             <SmallBtn
               text={"사진 찍기"}
-              pressFunction={() => navigation.navigate("TakePhoto")}
+              pressFunction={() => {
+                setSelectPhotos([]);
+                navigation.navigate("TakePhoto", { caption });
+              }}
             />
             <View style={{ width: 15 }} />
-            <SmallBtn text={"사진 올리기"} color={"main"} />
+            <SmallBtn
+              text={"사진 올리기"}
+              color={"main"}
+              pressFunction={() =>
+                navigation.navigate("UploadForm", { caption, selectPhotos })
+              }
+            />
           </View>
         );
       },
     });
-  }, []);
+  }, [caption, selectPhotos]);
 
   const firstGetPhotos = async () => {
     const { assets, endCursor, hasNextPage } =
@@ -129,6 +139,7 @@ export default function SelectPhoto({ navigation }) {
   };
 
   const renderPhoto = ({ item: photo }) => {
+    const parseIndex = parseInt(selectPhotos.indexOf(photo.uri) + 1);
     return (
       <TouchableOpacity
         onPress={() => pushPhotoURI(photo.uri)}
@@ -144,9 +155,38 @@ export default function SelectPhoto({ navigation }) {
             height: "100%",
             borderWidth: selectPhotos.includes(photo.uri) ? 8 : 0,
             borderColor: colors.mainColor,
+            position: "relative",
           }}
           source={{ uri: photo.uri }}
         />
+        {/* 인덱스 */}
+        {parseIndex > 0 ? (
+          <View
+            style={{
+              position: "absolute",
+              bottom: 20,
+              right: 20,
+              width: 30,
+              height: 30,
+              borderRadius: 15,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 214, 236, 0.8)",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 25,
+                fontWeight: "700",
+                color: colors.mainColor,
+                fontFamily: "Spoqa",
+              }}
+            >
+              {parseIndex}
+            </Text>
+          </View>
+        ) : null}
       </TouchableOpacity>
     );
   };

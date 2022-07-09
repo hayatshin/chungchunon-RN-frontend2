@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +21,8 @@ export default function LikeAndCommnet({
   feedId,
 }) {
   const navigation = useNavigation();
+  const [screenLiked, setScreenLiked] = useState(isLiked);
+  const [screenLikeNumber, setScreenLikeNumber] = useState(likeNumber);
 
   // toggleLike
 
@@ -30,19 +32,21 @@ export default function LikeAndCommnet({
         toggleLike: { ok },
       },
     } = result;
-
     if (ok) {
       const cacheFeedId = `Feed:${feedId}`;
       cache.modify({
         id: cacheFeedId,
         fields: {
           isLiked(prev) {
+            setScreenLiked(!screenLiked);
             return !prev;
           },
           likeNumber(prev) {
-            if (isLiked) {
+            if (screenLiked) {
+              setScreenLikeNumber(parseInt(screenLikeNumber) - 1);
               return prev - 1;
             }
+            setScreenLikeNumber(parseInt(screenLikeNumber) + 1);
             return prev + 1;
           },
         },
@@ -64,7 +68,7 @@ export default function LikeAndCommnet({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 20,
+        marginTop: 20,
       }}
     >
       {/* 좋아요 */}
@@ -79,29 +83,29 @@ export default function LikeAndCommnet({
         >
           <Ionicons
             style={{
-              color: colors.mainColor,
+              color: screenLiked ? colors.mainColor : "black",
               fontWeight: "700",
               fontSize: 35,
               marginRight: 5,
             }}
-            name={isLiked ? "heart" : "heart-outline"}
+            name={screenLiked ? "heart" : "heart-outline"}
           />
           <Text
             style={{
               fontSize: 20,
-              color: colors.mainColor,
+              color: "black",
               fontWeight: "700",
             }}
           >
-            좋아요 {likeNumber}개
+            좋아요 {screenLikeNumber}개
           </Text>
         </View>
       </TouchableOpacity>
       {/* 댓글 */}
       <TouchableOpacity
-        onPress={() => navigation.navigate("Comment")}
+        onPress={() => navigation.navigate("Comment", { feedId })}
         style={{
-          backgroundColor: colors.lightMain,
+          backgroundColor: colors.lightGray,
           paddingHorizontal: 8,
           paddingVertical: 1,
           borderRadius: 10,
@@ -113,7 +117,7 @@ export default function LikeAndCommnet({
         <Text
           style={{
             fontSize: 20,
-            color: colors.mainColor,
+            color: "black",
             fontWeight: "700",
           }}
         >

@@ -35,10 +35,11 @@ const TakePhotoBtn = styled.TouchableOpacity`
   right: 10px;
 `;
 
-export default function TakePhoto({ navigation }) {
+export default function TakePhoto({ navigation, route }) {
+  console.log(route);
   const camera = useRef();
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
-  const [takenPhoto, setTakenPhoto] = useState("");
+  const [takenPhoto, setTakenPhoto] = useState([]);
   const [cameraReady, setCameraReady] = useState(false);
   const [permission, setPermission] = useState(false);
   const [zoom, setZoom] = useState(0);
@@ -48,10 +49,21 @@ export default function TakePhoto({ navigation }) {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        return <SmallBtn text={"사진 올리기"} color={"main"} />;
+        return (
+          <SmallBtn
+            text={"사진 올리기"}
+            color={"main"}
+            pressFunction={() =>
+              navigation.navigate("UploadForm", {
+                caption: route?.params?.caption,
+                takenPhoto,
+              })
+            }
+          />
+        );
       },
     });
-  }, []);
+  }, [takenPhoto]);
 
   const getPermissions = async () => {
     const { granted } = await Camera.requestCameraPermissionsAsync();
@@ -96,27 +108,35 @@ export default function TakePhoto({ navigation }) {
         quality: 1,
         exif: true,
       });
-      setTakenPhoto(uri);
+      setTakenPhoto((oldArray) => [...oldArray, uri]);
     }
   };
 
-  const onDismiss = () => setTakenPhoto("");
+  const onDismiss = () => setTakenPhoto([]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      {takenPhoto === "" ? (
+      {takenPhoto.length === 0 ? (
         <Camera
           type={cameraType}
           zoom={zoom}
           flashMode={flashMode}
           onCameraReady={onCameraReady}
           ref={camera}
-          style={{ width: windowWidth, flex: 2.5, marginTop: 15 }}
+          style={{ width: windowWidth, flex: 2, marginTop: 15 }}
         ></Camera>
       ) : (
         <Image
-          source={{ uri: takenPhoto }}
-          style={{ width: windowWidth, flex: 2.5 }}
+          source={{ uri: takenPhoto[0] }}
+          style={{
+            width: windowWidth,
+            flex: 2,
+            transform:
+              cameraType === Camera.Constants.Type.back
+                ? [{ rotate: "270deg" }]
+                : [{ scaleX: -1 }, { rotate: "90deg" }],
+          }}
+          resizeMode="contain"
         />
       )}
       <View
@@ -156,7 +176,7 @@ export default function TakePhoto({ navigation }) {
             />
           </TouchableOpacity>
           {/* TakePhotoBtn */}
-          {takenPhoto ? (
+          {takenPhoto.length > 0 ? (
             <SmallBtn text={"다시 찍기"} pressFunction={onDismiss} />
           ) : (
             <TakePhotoBtn onPress={takePhoto}></TakePhotoBtn>

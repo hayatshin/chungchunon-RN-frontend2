@@ -8,9 +8,10 @@ import {
 } from "react-native";
 import { colors } from "../colors";
 
-export default function SmallBtn({ color, text, pressFunction }) {
+export default function SmallBtn({ color, text, pressFunction, disabled }) {
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={pressFunction}
       style={{
         paddingVertical: 5,
@@ -19,8 +20,8 @@ export default function SmallBtn({ color, text, pressFunction }) {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 10,
-        borderWidth: 3,
+        borderRadius: 6,
+        // borderWidth: 1,
         borderColor: color === "main" ? colors.mainColor : colors.gray,
       }}
     >

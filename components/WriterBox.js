@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
 import { colors } from "../colors";
+import { koreaDate } from "../koreaDate";
 
 export default function WriterBox({
   writerAvatar,
@@ -8,28 +9,7 @@ export default function WriterBox({
   writeTime,
   editTime,
 }) {
-  let createdTime = null;
-  if (writeTime === editTime) {
-    createdTime = new Date(+writeTime);
-  } else {
-    createdTime = new Date(+editTime);
-  }
-  const dmonth = createdTime.getMonth() + 1;
-  const ampm = createdTime.getHours() >= 12 ? "오후 " : "오전 ";
-  const hours = createdTime.getHours() == 12 ? 12 : createdTime.getHours() % 12;
-  const completeCreatedTime =
-    createdTime.getFullYear() +
-    "년 " +
-    dmonth +
-    "월 " +
-    createdTime.getDate() +
-    "일 " +
-    ampm +
-    hours +
-    "시 " +
-    createdTime.getMinutes() +
-    "분";
-
+  const completeCreatedTime = koreaDate(writeTime);
   return (
     <View
       style={{
@@ -64,9 +44,7 @@ export default function WriterBox({
             fontWeight: "600",
           }}
         >
-          {writeTime === editTime
-            ? `${completeCreatedTime} 글 작성`
-            : `${completeCreatedTime} 글 수정`}
+          {completeCreatedTime} 글 작성
         </Text>
       </View>
     </View>

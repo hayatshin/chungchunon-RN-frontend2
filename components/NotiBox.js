@@ -1,50 +1,56 @@
+import { gql, useQuery } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 
+const ME_QUERY = gql`
+  query me {
+    me {
+      avatar
+    }
+  }
+`;
+
 export default function NotiBox() {
+  const { data } = useQuery(ME_QUERY);
   const navigation = useNavigation();
   return (
     <View
       style={{
         width: "100%",
-        height: 90,
+        height: 80,
         marginBottom: 5,
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      {/* 분홍 박스 */}
+      {/* 최대 박스 */}
       <TouchableOpacity
         onPress={() => navigation.navigate("WriteFeed")}
         style={{
-          width: "90%",
-          height: 75,
-          backgroundColor: colors.mainColor,
-          borderRadius: 20,
-          borderWidth: 3,
+          width: "100%",
+          height: 80,
+          backgroundColor: "white",
+          // borderRadius: 20,
+          // borderWidth: 1,
           borderColor: colors.gray,
           display: "flex",
           flexDirection: "row",
-          justifyContent: "center",
+          justifyContent: "space-around",
           alignItems: "center",
         }}
       >
-        {/* 청춘온 이모티콘 */}
+        {/* 로그인 유저 사진 */}
         <View
           style={{
-            width: 65,
-            height: 65,
-            borderRadius: 35,
-            backgroundColor: "white",
+            width: "20%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center",
-            borderWidth: 2,
-            borderColor: colors.gray,
-            marginRight: 15,
+            alignItems: "flex-start",
+            paddingHorizontal: 15,
           }}
         >
           <Image
@@ -53,35 +59,51 @@ export default function NotiBox() {
               height: 60,
               borderRadius: 30,
             }}
-            source={require("../assets/images/ch-logo.gif")}
+            source={{ uri: data?.me?.avatar }}
           />
         </View>
         {/* 글쓰기창 */}
         <View
           style={{
-            width: "70%",
-            height: 40,
-            backgroundColor: "white",
-            borderRadius: 15,
-            borderWidth: 2,
-            borderColor: colors.gray,
+            width: "80%",
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
           }}
         >
-          <Text
+          <View
             style={{
-              fontFamily: "Spoqa",
-              fontSize: 20,
-              fontWeight: "700",
-              color: colors.gray,
+              width: "85%",
+              height: 40,
+              backgroundColor: "white",
+              borderRadius: 15,
+              borderWidth: 1,
+              borderColor: colors.gray,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            어떤 하루를 보내고 계신가요?
-          </Text>
+            <Text
+              style={{
+                fontFamily: "Spoqa",
+                fontSize: 20,
+                fontWeight: "700",
+                color: "black",
+              }}
+            >
+              어떤 하루를 보내고 계신가요?
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
+      {/* 경계 */}
+      <View
+        style={{
+          width: "100%",
+          height: 10,
+          backgroundColor: colors.lightGray,
+        }}
+      ></View>
     </View>
   );
 }

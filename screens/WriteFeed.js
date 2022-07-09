@@ -1,35 +1,56 @@
 import { gql, useQuery } from "@apollo/client";
-import React, { useEffect } from "react";
-import { View, Dimensions, TextInput, Image } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { View, Dimensions, TextInput, Image, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { colors } from "../colors";
 import SmallBtn from "../components/SmallBtn";
 
-const ME_QUERY = gql`
-  query me {
-    me {
-      avatar
-    }
-  }
-`;
-
 export default function WriteFeed({ navigation }) {
+  const [caption, setCaption] = useState("");
+  const [inputClick, setInputClick] = useState(false);
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        const pressFunction = () => navigation.navigate("Comment");
+        const pressFunction = () =>
+          navigation.navigate("UploadNav", {
+            screen: "UploadForm",
+            params: { caption },
+          });
         return (
-          <SmallBtn
-            pressFunction={pressFunction}
-            text={"확인"}
-            color={"main"}
-          />
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            {caption === "" ? (
+              <Text
+                style={{
+                  color: "black",
+                  fontSize: 16,
+                  fontWeight: "700",
+                  marginRight: 16,
+                  textDecorationLine: "underline",
+                }}
+              >
+                글을 작성해야 업로드가 가능해요! 👉
+              </Text>
+            ) : null}
+            <SmallBtn
+              pressFunction={pressFunction}
+              text={"확인"}
+              color={"main"}
+              disabled={caption === "" ? true : false}
+            />
+          </View>
         );
       },
     });
-  }, [navigation]);
+  }, [navigation, caption]);
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
-  const { data } = useQuery(ME_QUERY);
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{
@@ -40,62 +61,56 @@ export default function WriteFeed({ navigation }) {
         backgroundColor: "white",
       }}
     >
-      {/* 분홍 박스 */}
       <View
         style={{
-          marginTop: 20,
-          width: windowWidth * 0.9,
-          height: windowHeight * 0.8,
-          marginBottom: 20,
-          backgroundColor: colors.lightMain,
-          borderRadius: 20,
-          borderWidth: 4,
-          borderColor: colors.gray,
+          width: windowWidth,
+          height: windowHeight * 0.9,
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "flex-end",
-          paddingTop: 35,
-          paddingHorizontal: 25,
+          alignItems: "center",
         }}
       >
+        {/* 소개 */}
         <View
           style={{
             display: "flex",
             flexDirection: "row",
-            width: "100%",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
+            width: "85%",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            flex: 1,
+            marginBottom: 30,
           }}
         >
-          <Image
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              borderWidth: 3,
-              borderColor: colors.lightGray,
-            }}
-            source={{ uri: data?.me?.avatar }}
-          />
           {/* 사진 올리기 버튼 */}
           <SmallBtn
             text={"사진 올리기"}
             color={"black"}
-            pressFunction={() => navigation.navigate("UploadNav")}
+            disabled={caption === "" ? true : false}
+            pressFunction={() =>
+              navigation.navigate("UploadNav", {
+                screen: "SelectPhoto",
+                params: { caption },
+              })
+            }
           />
         </View>
 
         {/* 글쓰기 창 */}
         <TextInput
+          onFocus={() => setInputClick(true)}
+          onBlur={() => setInputClick(false)}
+          onChangeText={(text) => setCaption(text)}
+          onSubmitEditing={(text) => setCaption(text)}
           placeholder="글쓰기..."
           placeholderTextColor={colors.lightGray}
           style={{
-            width: "100%",
-            height: "73%",
+            flex: 4,
+            width: "85%",
             backgroundColor: "white",
-            borderRadius: 20,
-            borderWidth: 4,
-            borderColor: colors.lightGray,
+            borderRadius: 5,
+            borderWidth: 2,
+            borderColor: inputClick ? colors.mainColor : colors.lightGray,
             padding: 30,
             fontSize: 25,
             fontFamily: "Spoqa",

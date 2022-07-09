@@ -56,6 +56,7 @@ export default function ImageSwiper({ photosArray }) {
   };
   return (
     <AppIntroSlider
+      key={(item) => item}
       data={photosArray}
       showPrevButton={true}
       renderPrevButton={renderPrevButton}
@@ -66,7 +67,8 @@ export default function ImageSwiper({ photosArray }) {
           <View
             style={{
               width: windowWidth,
-              height: windowWidth * 0.7,
+              height: windowWidth,
+              backgroundColor: colors.lightGray,
             }}
           >
             <Image
