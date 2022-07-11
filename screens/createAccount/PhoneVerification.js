@@ -14,6 +14,8 @@ import styled from "styled-components/native";
 import ConfirmBtn from "../../components/ConfirmBtn";
 import { TWILLIO_BASE_URL } from "@env";
 
+const PRACTICE_BASE_URL = "http://172.30.1.47:4000";
+
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
   display: flex;
@@ -84,7 +86,7 @@ export default function PhoneVerification({ navigation, route }) {
     setPhoneInserted(true);
     setwaitMessage(true);
     // send verfication code to phone number
-    await fetch(`${TWILLIO_BASE_URL}/verify/${phone}`, {
+    await fetch(`${PRACTICE_BASE_URL}/verify/${phone}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -115,7 +117,7 @@ export default function PhoneVerification({ navigation, route }) {
     // Now check if the verfication inserted was the same as
     // the one sent
     try {
-      fetch(`${TWILLIO_BASE_URL}/check/${checkedNumber}/${verfication}`, {
+      fetch(`${PRACTICE_BASE_URL}/check/${checkedNumber}/${verfication}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

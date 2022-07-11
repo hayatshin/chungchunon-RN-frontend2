@@ -43,7 +43,7 @@ export default function EditFeed({ route, navigation }) {
     },
   });
 
-  const onUpdateEdit = async (cache, result) => {
+  const onUpdateEdit = (cache, result) => {
     const {
       data: {
         editFeed: { ok },
@@ -51,15 +51,15 @@ export default function EditFeed({ route, navigation }) {
     } = result;
     if (ok) {
       const cacheFeedId = `Feed:${feedId}`;
-      await cache.modify({
+      cache.modify({
         id: cacheFeedId,
         fields: {
-          caption() {
+          caption(prev) {
             return caption;
           },
         },
       });
-      await navigation.navigate("Tabs");
+      navigation.navigate("Tabs", { screen: "일상" });
     }
   };
 

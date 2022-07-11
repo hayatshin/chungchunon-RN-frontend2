@@ -10,12 +10,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import ImageSwiper from "../components/ImageSwiper";
-import LikeAndCommnet from "../components/LikeAndCommnet";
+import LikeAndComment from "../components/LikeAndComment";
 import NotiBox from "../components/NotiBox";
 import WriterBox from "../components/WriterBox";
 import Constants from "expo-constants";
 import { FEED_FRAGMENT } from "../fragments";
 import { colors } from "../colors";
+import { useIsFocused } from "@react-navigation/native";
 
 const SEE_ALL_FEEDS_QUERY = gql`
   query seeAllFeeds($offset: Int!) {
@@ -27,9 +28,10 @@ const SEE_ALL_FEEDS_QUERY = gql`
 `;
 
 export default function Feed({ navigation }) {
+  const screenFocus = useIsFocused();
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
-  const [dataSortArray, setDataSortArray] = useState([]);
+
   // seeAllFeeds
   const { data, loading, refetch, fetchMore } = useQuery(SEE_ALL_FEEDS_QUERY, {
     variables: {
@@ -37,20 +39,15 @@ export default function Feed({ navigation }) {
     },
   });
 
+  useEffect(() => {
+    refetch();
+  }, [screenFocus]);
+
   const refresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
-
-  useEffect(() => {
-    if (data) {
-      const dataSortStep = [...data?.seeAllFeeds].sort(
-        (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
-      );
-      setDataSortArray(dataSortStep);
-    }
-  }, [data]);
 
   const eachPhoto = ({ item: feed }) => {
     return (
@@ -73,7 +70,7 @@ export default function Feed({ navigation }) {
             {feed?.caption}
           </Text>
           {/* 좋아요 와 댓글 */}
-          <LikeAndCommnet
+          <LikeAndComment
             likeNumber={feed?.likeNumber}
             commentNumber={feed?.commentNumber}
             feedId={feed?.id}
@@ -92,18 +89,7 @@ export default function Feed({ navigation }) {
     );
   };
 
-  return dataSortArray.length === 0 ? (
-    <View
-      style={{
-        flex: 1,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <ActivityIndicator size={50} color={colors.mainColor} />
-    </View>
-  ) : (
+  return (
     <View
       style={{
         flex: 1,
@@ -124,7 +110,7 @@ export default function Feed({ navigation }) {
         refreshing={refreshing}
         onRefresh={refresh}
         keyExtractor={(feed) => feed.id}
-        data={dataSortArray}
+        data={data?.seeAllFeeds}
         renderItem={eachPhoto}
       />
     </View>

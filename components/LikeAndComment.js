@@ -14,7 +14,7 @@ const TOGGLE_LIKE_MUTATION = gql`
   }
 `;
 
-export default function LikeAndCommnet({
+export default function LikeAndComment({
   isLiked,
   likeNumber,
   commentNumber,

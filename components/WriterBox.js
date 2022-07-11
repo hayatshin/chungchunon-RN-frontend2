@@ -46,7 +46,7 @@ export default function WriterBox({
         id: cacheFeedId,
       });
     }
-    navigation.navigate("Tabs");
+    navigation.navigate("Tabs", { screen: "일상" });
   };
   const [deleteFeedMutation] = useMutation(DELETE_FEED_MUTATION, {
     variables: { id: parseInt(feedId) },

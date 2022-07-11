@@ -181,7 +181,6 @@ export default function Login({ navigation }) {
 
   const mutationComplete = (data) => {
     logUserIn(data.login.token);
-    navigation.navigate("LoggedInNav", { screen: "Tabs" });
   };
 
   const [loginMutation, { loading, data }] = useMutation(LOGIN_MUATION, {

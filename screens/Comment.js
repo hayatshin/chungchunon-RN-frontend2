@@ -9,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity,
   Animated,
-  Easing,
 } from "react-native";
 import styled from "styled-components/native";
 import { colors } from "../colors";
@@ -80,7 +79,7 @@ export default function Comment({ route }) {
   const animateY = useRef(new Animated.Value(500)).current;
   const goUpY = Animated.timing(animateY, {
     toValue: 0,
-    duration: 300,
+    duration: 400,
     useNativeDriver: true,
   });
 
@@ -92,7 +91,6 @@ export default function Comment({ route }) {
   const [inputClick, setInputClick] = useState(false);
   const [commentPayload, setCommentPayload] = useState("");
   const [commentSortArray, setCommentSortArray] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
   const [editCommentId, setEditCommentId] = useState(null);
   const [prevPayload, setPrevPayload] = useState("");
 
@@ -135,12 +133,6 @@ export default function Comment({ route }) {
     },
     update: onUpdateComment,
   });
-
-  const refresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
-  };
 
   useEffect(() => {
     setCommentSortArray(commentData?.seeFeedComments);
@@ -214,8 +206,6 @@ export default function Comment({ route }) {
       >
         {/* 댓글 */}
         <FlatList
-          refreshing={refreshing}
-          onRefresh={refresh}
           contentContainerStyle={{
             marginTop: 20,
             marginHorizontal: 20,

@@ -137,8 +137,10 @@ export default function PersonalInfo({ navigation, route }) {
   // mutation
 
   const loginComplete = (data) => {
-    logUserIn(data.login.token);
-    navigation.navigate("LoggedInNav", { screen: "Tabs" });
+    console.log(data);
+    if (data?.login?.ok) {
+      logUserIn(data.login.token);
+    }
   };
 
   const [loginMutation, { data: loginData }] = useMutation(LOGIN_MUATION, {
@@ -146,6 +148,7 @@ export default function PersonalInfo({ navigation, route }) {
   });
 
   const accountComplete = (data) => {
+    console.log(data);
     loginMutation({
       variables: {
         cellphone: phone,
@@ -168,20 +171,18 @@ export default function PersonalInfo({ navigation, route }) {
     });
     const birthModified = birth.toString();
     const genderModified = gender === 1 ? "남성" : "여성";
-    if (!accountLoading) {
-      createAccountMutation({
-        variables: {
-          birthday: birthModified,
-          gender: genderModified,
-          cellphone: phone,
-          name: nameValue,
-          avatar: avatarModified,
-          bio: bioValue,
-          region: regionValue,
-          community: communityValue,
-        },
-      });
-    }
+    createAccountMutation({
+      variables: {
+        birthday: birthModified,
+        gender: genderModified,
+        cellphone: phone,
+        name: nameValue,
+        avatar: avatarModified,
+        bio: bioValue,
+        region: regionValue,
+        community: communityValue,
+      },
+    });
   };
 
   return (
