@@ -6,7 +6,7 @@ export function koreaDate(ISOTime) {
   const ampm = createdTime.getHours() >= 12 ? "오후 " : "오전 ";
   const hours = createdTime.getHours() == 12 ? 12 : createdTime.getHours() % 12;
   const completeCreatedTime =
-    createdTime.getFullYear() +
+    createdTime.getFullYear().toString().substring(2, 4) +
     "년 " +
     dmonth +
     "월 " +

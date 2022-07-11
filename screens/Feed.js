@@ -37,18 +37,21 @@ export default function Feed({ navigation }) {
     },
   });
 
-  useEffect(() => {
-    const dataSortStep = [...data?.seeAllFeeds].sort(
-      (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
-    );
-    setDataSortArray(dataSortStep);
-  }, [data]);
-
   const refresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
+
+  useEffect(() => {
+    if (data) {
+      const dataSortStep = [...data?.seeAllFeeds].sort(
+        (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
+      );
+      setDataSortArray(dataSortStep);
+    }
+  }, [data]);
+
   const eachPhoto = ({ item: feed }) => {
     return (
       <View style={{ width: windowWidth }}>
