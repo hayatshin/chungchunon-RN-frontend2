@@ -26,7 +26,7 @@ const SEE_ALL_FEEDS_QUERY = gql`
   ${FEED_FRAGMENT}
 `;
 
-export default function Feed() {
+export default function Feed({ navigation }) {
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
   const [dataSortArray, setDataSortArray] = useState([]);
@@ -58,6 +58,7 @@ export default function Feed() {
           writerName={feed?.user?.name}
           writeTime={feed?.createdAt}
           editTime={feed?.updatedAt}
+          feedId={feed?.id}
         />
         {/* 이미지 */}
         {feed?.photos.length > 0 ? (

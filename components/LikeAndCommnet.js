@@ -26,7 +26,7 @@ export default function LikeAndCommnet({
 
   // toggleLike
 
-  const updateToggleLike = (cache, result) => {
+  const updateToggleLike = async (cache, result) => {
     const {
       data: {
         toggleLike: { ok },
@@ -34,7 +34,7 @@ export default function LikeAndCommnet({
     } = result;
     if (ok) {
       const cacheFeedId = `Feed:${feedId}`;
-      cache.modify({
+      await cache.modify({
         id: cacheFeedId,
         fields: {
           isLiked(prev) {
@@ -105,10 +105,7 @@ export default function LikeAndCommnet({
       <TouchableOpacity
         onPress={() => navigation.navigate("Comment", { feedId })}
         style={{
-          backgroundColor: colors.lightGray,
           paddingHorizontal: 8,
-          paddingVertical: 1,
-          borderRadius: 10,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

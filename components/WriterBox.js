@@ -1,41 +1,125 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Dimensions } from "react-native";
 import { colors } from "../colors";
 import { koreaDate } from "../koreaDate";
+import SmallBtn from "./SmallBtn";
+
+const ME_QUERY = gql`
+  query me {
+    me {
+      id
+      name
+    }
+  }
+`;
+
+const DELETE_FEED_MUTATION = gql`
+  mutation deleteFeed($id: Int!) {
+    deleteFeed(id: $id) {
+      ok
+      error
+    }
+  }
+`;
 
 export default function WriterBox({
+  feedId,
   writerAvatar,
   writerName,
   writeTime,
   editTime,
 }) {
+  const navigation = useNavigation();
+  const { width: windowWidth } = Dimensions.get("window");
+  const { data: meData } = useQuery(ME_QUERY);
+  const onUpdateDelete = (cache, result) => {
+    const {
+      data: {
+        deleteFeed: { ok },
+      },
+    } = result;
+    if (ok) {
+      const cacheFeedId = `Feed:${feedId}`;
+      cache.evict({
+        id: cacheFeedId,
+      });
+    }
+    navigation.navigate("Tabs");
+  };
+  const [deleteFeedMutation] = useMutation(DELETE_FEED_MUTATION, {
+    variables: { id: parseInt(feedId) },
+    update: onUpdateDelete,
+  });
   const completeCreatedTime = koreaDate(writeTime);
+  const onEditBtn = () => {
+    navigation.navigate("EditFeed", { feedId });
+  };
   return (
     <View
       style={{
-        width: "100%",
+        width: windowWidth,
         height: 90,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        paddingHorizontal: 15,
+        padding: 15,
       }}
     >
       <Image
         style={{ width: 60, height: 60, borderRadius: 30, marginRight: 15 }}
         source={{ uri: writerAvatar }}
       />
-      <View>
-        <Text
+      <View
+        stye={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <View
           style={{
-            fontFamily: "Spoqa",
-            fontSize: 28,
-            fontWeight: "800",
-            marginBottom: 8,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: windowWidth - 105,
+            marginBottom: 15,
           }}
         >
-          {writerName}
-        </Text>
+          {/* 이름 */}
+          <Text
+            style={{
+              fontFamily: "Spoqa",
+              fontSize: 28,
+              fontWeight: "800",
+            }}
+          >
+            {writerName}
+          </Text>
+          {/* 수정 및 삭제 */}
+          {meData?.me?.name === writerName ? (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "45%",
+                justifyContent: "space-between",
+              }}
+            >
+              <SmallBtn
+                text={"수정"}
+                color={"gray"}
+                pressFunction={onEditBtn}
+              />
+              <SmallBtn
+                text={"삭제"}
+                color={"main"}
+                pressFunction={deleteFeedMutation}
+              />
+            </View>
+          ) : null}
+        </View>
+        {/* 작성 날짜 */}
         <Text
           style={{
             fontFamily: "Spoqa",

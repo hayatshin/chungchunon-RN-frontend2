@@ -7,6 +7,7 @@ import { colors } from "../colors";
 const ME_QUERY = gql`
   query me {
     me {
+      id
       avatar
     }
   }

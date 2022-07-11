@@ -138,6 +138,7 @@ export default function PersonalInfo({ navigation, route }) {
 
   const loginComplete = (data) => {
     logUserIn(data.login.token);
+    navigation.navigate("LoggedInNav", { screen: "Tabs" });
   };
 
   const [loginMutation, { data: loginData }] = useMutation(LOGIN_MUATION, {

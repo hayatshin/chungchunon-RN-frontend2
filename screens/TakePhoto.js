@@ -36,7 +36,6 @@ const TakePhotoBtn = styled.TouchableOpacity`
 `;
 
 export default function TakePhoto({ navigation, route }) {
-  console.log(route);
   const camera = useRef();
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   const [takenPhoto, setTakenPhoto] = useState([]);

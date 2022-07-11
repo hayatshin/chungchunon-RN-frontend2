@@ -1,6 +1,13 @@
 import { gql, useMutation } from "@apollo/client";
 import React, { useEffect } from "react";
-import { View, Text, Dimensions, Image } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  Image,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import ImageSwiper from "../components/ImageSwiper";
 import SmallBtn from "../components/SmallBtn";
 import { ReactNativeFile } from "apollo-upload-client";
@@ -21,12 +28,12 @@ export default function UploadForm({ route, navigation }) {
     route?.params?.selectPhotos || route?.params?.takenPhoto || null;
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
 
-  const updateUploadPhoto = (cache, result) => {
+  const updateUploadPhoto = async (cache, result) => {
     const {
       data: { createFeed },
     } = result;
     if (createFeed.id) {
-      cache.modify({
+      await cache.modify({
         id: "ROOT_QUERY",
         fields: {
           seeAllFeeds(prev) {
@@ -38,12 +45,9 @@ export default function UploadForm({ route, navigation }) {
     }
   };
 
-  const [uploadFeedMutation, { loading, data }] = useMutation(
-    UPLOAD_FEED_MUTATION,
-    {
-      update: updateUploadPhoto,
-    }
-  );
+  const [uploadFeedMutation] = useMutation(UPLOAD_FEED_MUTATION, {
+    update: updateUploadPhoto,
+  });
 
   const onUploadPress = () => {
     if (uploadPhotos !== null) {
@@ -96,7 +100,7 @@ export default function UploadForm({ route, navigation }) {
       <View
         style={{
           width: windowWidth,
-          height: windowHeight * 0.5,
+          height: windowHeight * 0.8,
           display: "flex",
           justifyContent: "space-between",
           // backgroundColor: "red",
@@ -104,14 +108,19 @@ export default function UploadForm({ route, navigation }) {
       >
         {/* 이미지 */}
         {uploadPhotos ? (
-          <View style={{ width: "100%", height: windowWidth * 0.7 }}>
+          <View style={{ width: windowWidth, height: windowWidth }}>
             <ImageSwiper photosArray={uploadPhotos} />
           </View>
         ) : null}
         {/* 글 */}
-        <View style={{ padding: 15 }}>
-          <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>{caption}</Text>
-        </View>
+        <SafeAreaView>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{ padding: 15, height: windowWidth * 0.5 }}
+          >
+            <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>{caption}</Text>
+          </ScrollView>
+        </SafeAreaView>
       </View>
     </View>
   );

@@ -5,6 +5,7 @@ import WriteFeed from "../screens/WriteFeed";
 import { colors } from "../colors";
 import Comment from "../screens/Comment";
 import UploadNav from "./UploadNav";
+import EditFeed from "../screens/EditFeed";
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +61,22 @@ export default function LoggedInNav() {
           },
         }}
         component={Comment}
+      />
+      <Stack.Screen
+        name="EditFeed"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={EditFeed}
       />
     </Stack.Navigator>
   );
