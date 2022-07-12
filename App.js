@@ -11,6 +11,7 @@ import { AsyncStorageWrapper, persistCache } from "apollo3-cache-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoggedInNav from "./navigators/LoggedInNav";
 import LoggedoutNav from "./navigators/LoggedOutNav";
+import PersonalInfo from "./screens/createAccount/PersonalInfo";
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);

@@ -7,6 +7,7 @@ import {
   Text,
   Animated,
   Easing,
+  ActivityIndicator,
 } from "react-native";
 import { colors } from "../colors";
 import Layout from "../components/Layout";
@@ -16,7 +17,7 @@ import { gql, useMutation } from "@apollo/client";
 import { TWILLIO_BASE_URL } from "@env";
 import { logUserIn } from "../apollo";
 
-const PRACTICE_BASE_URL = "http://172.30.1.47:4000";
+const PRACTICE_BASE_URL = "http://172.30.1.58:4000";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {
@@ -297,16 +298,23 @@ export default function Login({ navigation }) {
               verfication.length === 6 ? colors.mainColor : colors.gray,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "Spoqa",
-              color: "white",
-              fontSize: 16,
-              fontWeight: "700",
-            }}
-          >
-            인증번호 확인
-          </Text>
+          {waitMessage ? (
+            <ActivityIndicator
+              fontSize={20}
+              color={colors.lightMain}
+            ></ActivityIndicator>
+          ) : (
+            <Text
+              style={{
+                fontFamily: "Spoqa",
+                color: "white",
+                fontSize: 16,
+                fontWeight: "700",
+              }}
+            >
+              인증번호 확인
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
       {/* 인증 확인 메세지 */}

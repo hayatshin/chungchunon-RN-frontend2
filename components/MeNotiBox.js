@@ -2,19 +2,38 @@ import { gql, useQuery } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
 import { colors } from "../colors";
+import { ME_FRAGMENT } from "../fragments";
 
 const ME_QUERY = gql`
   query me {
     me {
-      id
-      name
-      avatar
-      region
-      bio
-      community
+      ...MeFragment
     }
   }
+  ${ME_FRAGMENT}
+`;
+
+const InfoBox = styled.View`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 5px;
+`;
+
+const InfoHeader = styled.Text`
+  font-family: "Spoqa";
+  font-size: 20px;
+  color: black;
+  font-weight: 700;
+  margin-right: 10px;
+`;
+
+const InfoText = styled.Text`
+  font-family: "Spoqa";
+  font-size: 20px;
+  color: black;
 `;
 
 export default function MeNotiBox() {
@@ -30,18 +49,18 @@ export default function MeNotiBox() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "yellow",
+        paddingTop: 5,
       }}
     >
       {/* 자기 정보 */}
       <View
         style={{
           width: "100%",
-          height: 150,
           display: "flex",
           flexDirection: "row",
+          justifyContent: "space-between",
           alignItems: "center",
-          padding: 15,
+          paddingHorizontal: 15,
         }}
       >
         {/* 로그인 유저 사진 */}
@@ -65,24 +84,40 @@ export default function MeNotiBox() {
         {/* 글쓰기창 */}
         <View
           style={{
-            width: "80%",
-            height: "80%",
-            borderWidth: 1,
+            width: "75%",
             display: "flex",
-            alignItems: "center",
             borderRadius: 10,
+            paddingVertical: 10,
           }}
         >
-          <Text
+          <InfoBox>
+            <InfoHeader>이름</InfoHeader>
+            <InfoText>{data?.me?.name}</InfoText>
+          </InfoBox>
+          <InfoBox>
+            <InfoHeader>지역</InfoHeader>
+            <InfoText>{data?.me?.region}</InfoText>
+          </InfoBox>
+          <InfoBox>
+            <InfoHeader>소속 기관</InfoHeader>
+            <InfoText>{data?.me?.community?.communityName}</InfoText>
+          </InfoBox>
+          <View
             style={{
-              fontFamily: "Spoqa",
-              fontSize: 20,
-              fontWeight: "700",
-              color: "black",
+              width: "80%",
+              backgroundColor: colors.lightGray,
+              display: "flex",
+              alignItems: "center",
+              borderRadius: 5,
+              padding: 2,
             }}
           >
-            {data?.me?.name}
-          </Text>
+            <Text
+              style={{ fontFamily: "Spoqa", fontWeight: "700", fontSize: 20 }}
+            >
+              " {data?.me?.bio} "
+            </Text>
+          </View>
         </View>
       </View>
       {/* 경계 */}
@@ -91,6 +126,7 @@ export default function MeNotiBox() {
           width: "100%",
           height: 10,
           backgroundColor: colors.lightGray,
+          marginTop: 5,
         }}
       ></View>
     </View>

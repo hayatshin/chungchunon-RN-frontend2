@@ -7,6 +7,7 @@ import {
   Text,
   Animated,
   Easing,
+  ActivityIndicator,
 } from "react-native";
 import { colors } from "../../colors";
 import Layout from "../../components/Layout";
@@ -14,7 +15,7 @@ import styled from "styled-components/native";
 import ConfirmBtn from "../../components/ConfirmBtn";
 import { TWILLIO_BASE_URL } from "@env";
 
-const PRACTICE_BASE_URL = "http://172.30.1.47:4000";
+const PRACTICE_BASE_URL = "http://172.30.1.58:4000";
 
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
@@ -276,16 +277,23 @@ export default function PhoneVerification({ navigation, route }) {
               verfication.length === 6 ? colors.mainColor : colors.gray,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "Spoqa",
-              color: "white",
-              fontSize: 16,
-              fontWeight: "700",
-            }}
-          >
-            인증번호 확인
-          </Text>
+          {waitMessage ? (
+            <ActivityIndicator
+              fontSize={20}
+              color={colors.lightMain}
+            ></ActivityIndicator>
+          ) : (
+            <Text
+              style={{
+                fontFamily: "Spoqa",
+                color: "white",
+                fontSize: 16,
+                fontWeight: "700",
+              }}
+            >
+              인증번호 확인
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
       {/* 인증 확인 메세지 */}

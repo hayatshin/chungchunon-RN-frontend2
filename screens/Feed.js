@@ -1,21 +1,12 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Dimensions,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, FlatList, Dimensions } from "react-native";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
 import NotiBox from "../components/NotiBox";
 import WriterBox from "../components/WriterBox";
 import Constants from "expo-constants";
 import { FEED_FRAGMENT } from "../fragments";
-import { colors } from "../colors";
 import { useIsFocused } from "@react-navigation/native";
 
 const SEE_ALL_FEEDS_QUERY = gql`
@@ -99,7 +90,7 @@ export default function Feed({ navigation }) {
     >
       <NotiBox />
       <FlatList
-        onEndReachedThreshold={0.05}
+        onEndReachedThreshold={0.1}
         onEndReached={() =>
           fetchMore({
             variables: {
@@ -109,7 +100,7 @@ export default function Feed({ navigation }) {
         }
         refreshing={refreshing}
         onRefresh={refresh}
-        keyExtractor={(feed) => feed.id}
+        keyExtractor={(feed) => feed?.id}
         data={data?.seeAllFeeds}
         renderItem={eachPhoto}
       />

@@ -40,3 +40,18 @@ export const COMMENT_FRAGMENT = gql`
     updatedAt
   }
 `;
+
+export const ME_FRAGMENT = gql`
+  fragment MeFragment on User {
+    id
+    name
+    avatar
+    region
+    bio
+    community {
+      id
+      communityName
+      communityLogo
+    }
+  }
+`;

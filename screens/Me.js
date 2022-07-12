@@ -1,29 +1,22 @@
 import { gql, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Dimensions,
-  ActivityIndicator,
-  FlatList,
-} from "react-native";
+import { View, Text, Dimensions, FlatList } from "react-native";
 import { colors } from "../colors";
 import Constants from "expo-constants";
-import { FEED_FRAGMENT } from "../fragments";
+import { FEED_FRAGMENT, ME_FRAGMENT } from "../fragments";
 import MeNotiBox from "../components/MeNotiBox";
 import ImageSwiper from "../components/ImageSwiper";
-import LikeAndCommnet from "../components/LikeAndComment";
 import LikeAndComment from "../components/LikeAndComment";
 import WriterBox from "../components/WriterBox";
+import { useIsFocused } from "@react-navigation/native";
 
 const Me_QUERY = gql`
   query me {
     me {
-      id
-      name
-      avatar
+      ...MeFragment
     }
   }
+  ${ME_FRAGMENT}
 `;
 
 const SEE_CERTAIN_USER_FEED_QUERY = gql`
@@ -36,9 +29,9 @@ const SEE_CERTAIN_USER_FEED_QUERY = gql`
 `;
 
 export default function Me() {
+  const screenFocus = useIsFocused();
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
-  const [dataSortArray, setDataSortArray] = useState([]);
   // meQuery
   const { data: meData } = useQuery(Me_QUERY);
   // seeAllFeeds
@@ -54,20 +47,15 @@ export default function Me() {
     },
   });
 
+  useEffect(() => {
+    refetch();
+  }, [screenFocus]);
+
   const refresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   };
-
-  useEffect(() => {
-    if (meFeedData) {
-      const dataSortStep = [...meFeedData?.seeCertainUserFeed].sort(
-        (a, b) => parseInt(b.createdAt) - parseInt(a.createdAt)
-      );
-      setDataSortArray(dataSortStep);
-    }
-  }, [meFeedData]);
 
   const eachPhoto = ({ item: feed }) => {
     return (
@@ -108,18 +96,7 @@ export default function Me() {
       </View>
     );
   };
-  return dataSortArray.length === 0 ? (
-    <View
-      style={{
-        flex: 1,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <ActivityIndicator size={50} color={colors.mainColor} />
-    </View>
-  ) : (
+  return (
     <View
       style={{
         flex: 1,
@@ -129,7 +106,7 @@ export default function Me() {
     >
       <MeNotiBox />
       <FlatList
-        onEndReachedThreshold={0.05}
+        onEndReachedThreshold={0.1}
         onEndReached={() =>
           fetchMore({
             variables: {
@@ -140,7 +117,7 @@ export default function Me() {
         refreshing={refreshing}
         onRefresh={refresh}
         keyExtractor={(feed) => feed.id}
-        data={dataSortArray}
+        data={meFeedData?.seeCertainUserFeed}
         renderItem={eachPhoto}
       />
     </View>
