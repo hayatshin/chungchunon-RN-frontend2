@@ -1,32 +1,40 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Dimensions } from "react-native";
+import { View, Text, Dimensions, FlatList } from "react-native";
+import { colors } from "../colors";
+import Constants from "expo-constants";
+import { FEED_FRAGMENT, ME_FRAGMENT } from "../fragments";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
-import NotiBox from "../components/NotiBox";
 import WriterBox from "../components/WriterBox";
-import Constants from "expo-constants";
-import { FEED_FRAGMENT } from "../fragments";
 import { useIsFocused } from "@react-navigation/native";
+import InfoNotiBox from "../components/InfoNotiBox";
+import NotiBox from "../components/NotiBox";
 
-const SEE_ALL_FEEDS_QUERY = gql`
-  query seeAllFeeds($offset: Int!) {
-    seeAllFeeds(offset: $offset) {
+const SEE_CERTAIN_USER_FEED_QUERY = gql`
+  query seeCertainUserFeed($offset: Int!, $id: Int!) {
+    seeCertainUserFeed(offset: $offset, id: $id) {
       ...FeedFragment
     }
   }
   ${FEED_FRAGMENT}
 `;
 
-export default function Feed({ navigation }) {
+export default function FriendFeed({ route }) {
+  const userId = route?.params?.userId;
   const screenFocus = useIsFocused();
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
 
-  // seeAllFeeds
-  const { data, loading, refetch, fetchMore } = useQuery(SEE_ALL_FEEDS_QUERY, {
+  const {
+    data: friendFeedData,
+    loading,
+    refetch,
+    fetchMore,
+  } = useQuery(SEE_CERTAIN_USER_FEED_QUERY, {
     variables: {
       offset: 0,
+      id: parseInt(userId),
     },
   });
 
@@ -80,29 +88,27 @@ export default function Feed({ navigation }) {
       </View>
     );
   };
-
   return (
     <View
       style={{
         flex: 1,
-        paddingTop: Constants.statusBarHeight,
         backgroundColor: "white",
       }}
     >
-      <NotiBox />
+      <InfoNotiBox userId={userId} />
       <FlatList
         onEndReachedThreshold={0.1}
         onEndReached={() =>
           fetchMore({
             variables: {
-              offset: data?.seeAllFeeds?.length,
+              offset: friendFeedData?.seeCertainUserFeed?.length,
             },
           })
         }
         refreshing={refreshing}
         onRefresh={refresh}
-        keyExtractor={(feed) => feed?.id}
-        data={data?.seeAllFeeds}
+        keyExtractor={(feed) => feed.id}
+        data={friendFeedData?.seeCertainUserFeed}
         renderItem={eachPhoto}
       />
     </View>

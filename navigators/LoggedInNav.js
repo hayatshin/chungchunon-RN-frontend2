@@ -6,6 +6,8 @@ import { colors } from "../colors";
 import Comment from "../screens/Comment";
 import UploadNav from "./UploadNav";
 import EditFeed from "../screens/EditFeed";
+import LikeInfo from "../screens/LikeInfo";
+import FriendFeed from "../screens/FriendFeed";
 
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +79,38 @@ export default function LoggedInNav() {
           },
         }}
         component={EditFeed}
+      />
+      <Stack.Screen
+        name="LikeInfo"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={LikeInfo}
+      />
+      <Stack.Screen
+        name="FriendFeed"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={FriendFeed}
       />
     </Stack.Navigator>
   );

@@ -72,7 +72,9 @@ export default function LikeAndComment({
       }}
     >
       {/* 좋아요 */}
-      <TouchableOpacity onPress={toggleLikeMutation}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("LikeInfo", { feedId })}
+      >
         <View
           style={{
             display: "flex",
@@ -81,15 +83,17 @@ export default function LikeAndComment({
             alignItems: "center",
           }}
         >
-          <Ionicons
-            style={{
-              color: screenLiked ? colors.mainColor : "black",
-              fontWeight: "700",
-              fontSize: 35,
-              marginRight: 5,
-            }}
-            name={screenLiked ? "heart" : "heart-outline"}
-          />
+          <TouchableOpacity onPress={toggleLikeMutation}>
+            <Ionicons
+              style={{
+                color: screenLiked ? colors.mainColor : "black",
+                fontWeight: "700",
+                fontSize: 35,
+                marginRight: 5,
+              }}
+              name={screenLiked ? "heart" : "heart-outline"}
+            />
+          </TouchableOpacity>
           <Text
             style={{
               fontSize: 20,
@@ -101,6 +105,7 @@ export default function LikeAndComment({
           </Text>
         </View>
       </TouchableOpacity>
+
       {/* 댓글 */}
       <TouchableOpacity
         onPress={() => navigation.navigate("Comment", { feedId })}

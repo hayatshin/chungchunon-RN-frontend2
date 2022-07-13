@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
-import { View, Text, Image, Dimensions } from "react-native";
+import { View, Text, Image, Dimensions, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { koreaDate } from "../koreaDate";
 import SmallBtn from "./SmallBtn";
@@ -29,7 +29,7 @@ export default function WriterBox({
   writerAvatar,
   writerName,
   writeTime,
-  editTime,
+  writerId,
 }) {
   const navigation = useNavigation();
   const { width: windowWidth } = Dimensions.get("window");
@@ -67,10 +67,14 @@ export default function WriterBox({
         padding: 15,
       }}
     >
-      <Image
-        style={{ width: 60, height: 60, borderRadius: 30, marginRight: 15 }}
-        source={{ uri: writerAvatar }}
-      />
+      <TouchableOpacity
+        onPress={() => navigation.navigate("FriendFeed", { userId: writerId })}
+      >
+        <Image
+          style={{ width: 60, height: 60, borderRadius: 30, marginRight: 15 }}
+          source={{ uri: writerAvatar }}
+        />
+      </TouchableOpacity>
       <View
         stye={{
           display: "flex",
@@ -87,15 +91,21 @@ export default function WriterBox({
           }}
         >
           {/* 이름 */}
-          <Text
-            style={{
-              fontFamily: "Spoqa",
-              fontSize: 28,
-              fontWeight: "800",
-            }}
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("FriendFeed", { userId: writerId })
+            }
           >
-            {writerName}
-          </Text>
+            <Text
+              style={{
+                fontFamily: "Spoqa",
+                fontSize: 28,
+                fontWeight: "800",
+              }}
+            >
+              {writerName}
+            </Text>
+          </TouchableOpacity>
           {/* 수정 및 삭제 */}
           {meData?.me?.name === writerName ? (
             <View

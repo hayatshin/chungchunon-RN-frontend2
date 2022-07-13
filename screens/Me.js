@@ -4,11 +4,11 @@ import { View, Text, Dimensions, FlatList } from "react-native";
 import { colors } from "../colors";
 import Constants from "expo-constants";
 import { FEED_FRAGMENT, ME_FRAGMENT } from "../fragments";
-import MeNotiBox from "../components/MeNotiBox";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
 import WriterBox from "../components/WriterBox";
 import { useIsFocused } from "@react-navigation/native";
+import InfoNotiBox from "../components/InfoNotiBox";
 
 const Me_QUERY = gql`
   query me {
@@ -20,8 +20,8 @@ const Me_QUERY = gql`
 `;
 
 const SEE_CERTAIN_USER_FEED_QUERY = gql`
-  query seeCertainUserFeed($offset: Int!, $userName: String!) {
-    seeCertainUserFeed(offset: $offset, userName: $userName) {
+  query seeCertainUserFeed($offset: Int!, $id: Int!) {
+    seeCertainUserFeed(offset: $offset, id: $id) {
       ...FeedFragment
     }
   }
@@ -43,7 +43,7 @@ export default function Me() {
   } = useQuery(SEE_CERTAIN_USER_FEED_QUERY, {
     variables: {
       offset: 0,
-      userName: meData?.me?.name,
+      id: parseInt(meData?.me?.id),
     },
   });
 
@@ -104,7 +104,7 @@ export default function Me() {
         backgroundColor: "white",
       }}
     >
-      <MeNotiBox />
+      <InfoNotiBox userId={meData?.me?.id} />
       <FlatList
         onEndReachedThreshold={0.1}
         onEndReached={() =>

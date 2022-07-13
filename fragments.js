@@ -53,5 +53,8 @@ export const ME_FRAGMENT = gql`
       communityName
       communityLogo
     }
+    directFeedNumber
+    directCommentNumber
+    directLikeNumber
   }
 `;

@@ -118,6 +118,7 @@ export default function CommunityRank({ navigation }) {
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
   const [flatlistdata, setFlatlistdata] = useState([]);
+  const [myrank, setMyrank] = useState("");
 
   useEffect(() => {
     if (feedClick) {
@@ -144,25 +145,82 @@ export default function CommunityRank({ navigation }) {
     }
   }, [feedClick, commentClick, likeClick]);
 
+  useEffect(
+    () =>
+      setMyrank(
+        [...flatlistdata].findIndex((object) => {
+          return object.id === meData?.me?.id;
+        })
+      ),
+    [flatlistdata]
+  );
+
   const feedClickFunction = () => {
     setFeedClick(true);
     setCommentClick(false);
     setLikeClick(false);
-    // setFlatlistdata(communityFeedData?.seeCommunityFeedOrder);
   };
 
   const commentClickFunction = () => {
     setFeedClick(false);
     setCommentClick(true);
     setLikeClick(false);
-    // setFlatlistdata(communityCommentData?.seeCommunityCommentOrder);
   };
 
   const likeClickFunction = () => {
     setFeedClick(false);
     setCommentClick(false);
     setLikeClick(true);
-    // setFlatlistdata(communityLikeData?.seeCommunityLikeOrder);
+  };
+
+  const RankRow = ({ item, index, myrank }) => {
+    return (
+      <View
+        style={{
+          width: myrank ? windowWidth * 0.9 : windowWidth,
+          height: 60,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 50,
+          borderWidth: myrank ? 1 : 0,
+          borderRadius: myrank ? 10 : 0,
+          borderColor: myrank ? colors.gray : "white",
+          marginBottom: myrank ? 20 : 0,
+          backgroundColor: "white",
+        }}
+      >
+        <HeaderText>{index + 1}위</HeaderText>
+        {/* 이미지와 이름 */}
+        <View
+          style={{
+            width: "60%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              marginRight: 20,
+            }}
+            source={{ uri: item.avatar }}
+          />
+          <HeaderText>{item.name}</HeaderText>
+        </View>
+        {feedClick ? (
+          <BodyText>{item.directFeedNumber}개</BodyText>
+        ) : commentClick ? (
+          <BodyText>{item.directCommentNumber}개</BodyText>
+        ) : likeClick ? (
+          <BodyText>{item.directLikeNumber}개</BodyText>
+        ) : null}
+      </View>
+    );
   };
 
   return (
@@ -172,6 +230,7 @@ export default function CommunityRank({ navigation }) {
         backgroundColor: "white",
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
       }}
     >
       {/* 소속기관 헤더 */}
@@ -274,53 +333,10 @@ export default function CommunityRank({ navigation }) {
         <FlatList
           data={flatlistdata}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => {
-            return (
-              <View
-                style={{
-                  width: windowWidth,
-                  height: 60,
-                  display: "flex",
-                  flexDirection: "row",
-                  paddingHorizontal: 10,
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  paddingHorizontal: 50,
-                }}
-              >
-                <HeaderText>{index}위</HeaderText>
-                {/* 이미지와 이름 */}
-                <View
-                  style={{
-                    width: "60%",
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Image
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 20,
-                      marginRight: 20,
-                    }}
-                    source={{ uri: item.avatar }}
-                  />
-                  <HeaderText>{item.name}</HeaderText>
-                </View>
-                {feedClick ? (
-                  <BodyText>{item.directFeedNumber}개</BodyText>
-                ) : commentClick ? (
-                  <BodyText>{item.directCommentNumber}개</BodyText>
-                ) : likeClick ? (
-                  <BodyText>{item.directLikeNumber}개</BodyText>
-                ) : null}
-              </View>
-            );
-          }}
+          renderItem={RankRow}
         />
       )}
+      <RankRow item={meData?.me} index={myrank} myrank={true} />
     </View>
   );
 }
