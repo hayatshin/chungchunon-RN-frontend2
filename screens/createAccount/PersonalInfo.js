@@ -30,6 +30,7 @@ const CREATE_ACCOUNT_MUATION = gql`
     $bio: String
     $region: String!
     $community: String!
+    $age: Int!
   ) {
     createAccount(
       birthday: $birthday
@@ -40,6 +41,7 @@ const CREATE_ACCOUNT_MUATION = gql`
       bio: $bio
       region: $region
       community: $community
+      age: $age
     ) {
       ok
       error
@@ -91,7 +93,7 @@ const GeneralInput = styled.TextInput`
 `;
 
 export default function PersonalInfo({ navigation, route }) {
-  const { birth, gender, phone } = route.params;
+  const { birth, gender, phone, age } = route.params;
   const windowWidth = Dimensions.get("window").width;
   const [disableConfirm, setDisableConfirm] = useState(true);
   const { data: communityData, loading: communityLoading } = useQuery(
@@ -117,7 +119,6 @@ export default function PersonalInfo({ navigation, route }) {
     );
     if (!communityLoading) {
       setCommunityList(communityNameList);
-      console.log(communityList);
     }
   }, [communityLoading]);
 
@@ -203,6 +204,7 @@ export default function PersonalInfo({ navigation, route }) {
         bio: bioValue,
         region: regionValue,
         community: communityValue,
+        age: parseInt(age),
       },
     });
   };

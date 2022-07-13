@@ -15,7 +15,7 @@ import styled from "styled-components/native";
 import ConfirmBtn from "../../components/ConfirmBtn";
 import { TWILLIO_BASE_URL } from "@env";
 
-const PRACTICE_BASE_URL = "http://172.30.1.58:4000";
+const PRACTICE_BASE_URL = "http://172.30.1.45:4000";
 
 const InputHeader = styled.Text`
   width: ${(props) => props.windowWidth * 0.8}px;
@@ -174,6 +174,7 @@ export default function PhoneVerification({ navigation, route }) {
     navigation.navigate("PersonalInfo", {
       birth: route.params.birth,
       gender: route.params.gender,
+      age: route.params.age,
       phone,
     });
     setDisableConfirm(true);

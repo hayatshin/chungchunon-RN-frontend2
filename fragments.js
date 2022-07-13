@@ -58,3 +58,17 @@ export const ME_FRAGMENT = gql`
     directLikeNumber
   }
 `;
+
+export const POEM_FRAGMENT = gql`
+  fragment PoemFragement on Poem {
+    id
+    poemTitle
+    poemCaption
+    createdAt
+    updatedAt
+    user {
+      name
+      avatar
+    }
+  }
+`;

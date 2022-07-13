@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Dimensions,
-  TouchableOpacity,
-  FlatList,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, Dimensions, FlatList, Image } from "react-native";
 import moment from "moment";
 import styled from "styled-components/native";
 import { colors } from "../colors";
 import { gql, useQuery } from "@apollo/client";
 import { ME_FRAGMENT } from "../fragments";
+import { useIsFocused } from "@react-navigation/native";
 
 const Me_QUERY = gql`
   query me {
@@ -76,10 +69,7 @@ const MenuBox = styled.TouchableOpacity`
 `;
 
 export default function CommunityRank({ navigation }) {
-  useEffect(() => {
-    navigation.setOptions({});
-  }, []);
-
+  const screenFocus = useIsFocused();
   const { data: meData } = useQuery(Me_QUERY);
 
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
@@ -90,46 +80,56 @@ export default function CommunityRank({ navigation }) {
   const today = moment().format("YYYY/MM/DD hh:mm").substring(0, 10);
 
   // 일상, 댓글, 좋아요
-  const { data: communityFeedData, loading: communityFeedLoading } = useQuery(
-    SEE_COMMUNITY_FEED_ORDER,
-    {
-      variables: {
-        id: parseInt(meData?.me?.community?.id),
-      },
-    }
-  );
+  const {
+    data: communityFeedData,
+    loading: communityFeedLoading,
+    refetch: communityFeedRefetch,
+  } = useQuery(SEE_COMMUNITY_FEED_ORDER, {
+    variables: {
+      id: parseInt(meData?.me?.community?.id),
+    },
+  });
 
-  const { data: communityCommentData, loading: communityCommentLoading } =
-    useQuery(SEE_COMMUNITY_COMMENT_ORDER, {
-      variables: {
-        id: parseInt(meData?.me?.community?.id),
-      },
-    });
-  const { data: communityLikeData, loading: communityLikeLoading } = useQuery(
-    SEE_COMMUNITY_LIKE_ORDER,
-    {
-      variables: {
-        id: parseInt(meData?.me?.community?.id),
-      },
-    }
-  );
+  const { data: communityCommentData } = useQuery(SEE_COMMUNITY_COMMENT_ORDER, {
+    variables: {
+      id: parseInt(meData?.me?.community?.id),
+    },
+  });
+  const { data: communityLikeData } = useQuery(SEE_COMMUNITY_LIKE_ORDER, {
+    variables: {
+      id: parseInt(meData?.me?.community?.id),
+    },
+  });
 
   const [feedClick, setFeedClick] = useState(true);
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
   const [flatlistdata, setFlatlistdata] = useState([]);
-  const [myrank, setMyrank] = useState("");
+  const [myrankOrder, setMyrankOrder] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (feedClick) {
+    if (!communityFeedLoading) {
+      communityFeedRefetch();
+
       setFlatlistdata(
-        [...communityFeedData.seeCommunityFeedOrder].sort(function (a, b) {
+        [...communityFeedData?.seeCommunityFeedOrder].sort(function (a, b) {
+          return b.directFeedNumber - a.directFeedNumber;
+        })
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (feedClick || screenFocus) {
+      setFlatlistdata(
+        [...communityFeedData?.seeCommunityFeedOrder].sort(function (a, b) {
           return b.directFeedNumber - a.directFeedNumber;
         })
       );
     } else if (commentClick) {
       setFlatlistdata(
-        [...communityCommentData.seeCommunityCommentOrder].sort(function (
+        [...communityCommentData?.seeCommunityCommentOrder].sort(function (
           a,
           b
         ) {
@@ -143,11 +143,11 @@ export default function CommunityRank({ navigation }) {
         })
       );
     }
-  }, [feedClick, commentClick, likeClick]);
+  }, [screenFocus, feedClick, commentClick, likeClick]);
 
   useEffect(
     () =>
-      setMyrank(
+      setMyrankOrder(
         [...flatlistdata].findIndex((object) => {
           return object.id === meData?.me?.id;
         })
@@ -173,21 +173,25 @@ export default function CommunityRank({ navigation }) {
     setLikeClick(true);
   };
 
-  const RankRow = ({ item, index, myrank }) => {
+  const refresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  const RankRow = ({ item, index }) => {
     return (
       <View
         style={{
-          width: myrank ? windowWidth * 0.9 : windowWidth,
+          width: windowWidth,
           height: 60,
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
           paddingHorizontal: 50,
-          borderWidth: myrank ? 1 : 0,
-          borderRadius: myrank ? 10 : 0,
-          borderColor: myrank ? colors.gray : "white",
-          marginBottom: myrank ? 20 : 0,
+          borderColor: colors.gray,
+          marginBottom: 20,
           backgroundColor: "white",
         }}
       >
@@ -213,17 +217,17 @@ export default function CommunityRank({ navigation }) {
           <HeaderText>{item.name}</HeaderText>
         </View>
         {feedClick ? (
-          <BodyText>{item.directFeedNumber}개</BodyText>
+          <BodyText>{item.directFeedNumber || 0} 개</BodyText>
         ) : commentClick ? (
-          <BodyText>{item.directCommentNumber}개</BodyText>
+          <BodyText>{item.directCommentNumber || 0} 개</BodyText>
         ) : likeClick ? (
-          <BodyText>{item.directLikeNumber}개</BodyText>
+          <BodyText>{item.directLikeNumber || 0} 개</BodyText>
         ) : null}
       </View>
     );
   };
 
-  return (
+  return flatlistdata === [] ? null : (
     <View
       style={{
         flex: 1,
@@ -233,37 +237,6 @@ export default function CommunityRank({ navigation }) {
         alignItems: "center",
       }}
     >
-      {/* 소속기관 헤더 */}
-      <View
-        style={{
-          width: windowWidth,
-          height: 60,
-          justifyContent: "space-around",
-          paddingHorizontal: 20,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 5,
-          marginBottom: 15,
-        }}
-      >
-        <Image
-          style={{
-            width: 100,
-            height: 50,
-            borderWidth: 1,
-            borderColor: colors.lightGray,
-            borderRadius: 5,
-            marginRight: 20,
-          }}
-          source={{ uri: meData?.me?.community.communityLogo }}
-          resizeMode="contain"
-        />
-        <Text style={{ fontSize: 25, fontWeight: "700" }}>
-          {meData?.me?.community?.communityName}
-        </Text>
-      </View>
       {/* 헤더 */}
       <View
         style={{
@@ -323,20 +296,59 @@ export default function CommunityRank({ navigation }) {
         </MenuBox>
       </View>
       {/* 순위 리스트 */}
-      {flatlistdata === [] ? (
+      <FlatList
+        data={flatlistdata}
+        keyExtractor={(item) => item.id}
+        renderItem={RankRow}
+        refreshing={refreshing}
+        onRefresh={refresh}
+      />
+      {/* 내 순위 */}
+      <View
+        style={{
+          width: windowWidth * 0.9,
+          height: 60,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 50,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: colors.gray,
+          marginBottom: 20,
+          backgroundColor: "white",
+        }}
+      >
+        <HeaderText>{myrankOrder + 1}위</HeaderText>
+        {/* 이미지와 이름 */}
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={{
+            width: "60%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
         >
-          <ActivityIndicator size={30} color={colors.mainColor} />
+          <Image
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              marginRight: 20,
+            }}
+            source={{ uri: meData?.me?.avatar }}
+          />
+          <HeaderText>{meData?.me?.name}</HeaderText>
         </View>
-      ) : (
-        <FlatList
-          data={flatlistdata}
-          keyExtractor={(item) => item.id}
-          renderItem={RankRow}
-        />
-      )}
-      <RankRow item={meData?.me} index={myrank} myrank={true} />
+        {feedClick ? (
+          <BodyText>{meData?.me?.directFeedNumber || 0} 개</BodyText>
+        ) : commentClick ? (
+          <BodyText>{meData?.me?.directCommentNumber || 0} 개</BodyText>
+        ) : likeClick ? (
+          <BodyText>{meData?.me?.directLikeNumber || 0} 개</BodyText>
+        ) : null}
+      </View>
     </View>
   );
 }

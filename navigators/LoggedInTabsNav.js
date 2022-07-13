@@ -2,9 +2,9 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Feed from "../screens/Feed";
 import { colors } from "../colors";
-import Friend from "../screens/Friend";
 import Me from "../screens/Me";
 import RankNav from "./RankNav";
+import Poem from "../screens/Poem";
 
 const Tabs = createBottomTabNavigator();
 
@@ -36,19 +36,20 @@ export default function LoggedInTabsNav() {
         component={Feed}
       />
       <Tabs.Screen
+        name="시"
+        options={{
+          tabBarBadgeStyle: {},
+        }}
+        component={Poem}
+      />
+      <Tabs.Screen
         name="순위"
         options={{
           tabBarBadgeStyle: {},
         }}
         component={RankNav}
       />
-      <Tabs.Screen
-        name="친구"
-        options={{
-          tabBarBadgeStyle: {},
-        }}
-        component={Friend}
-      />
+
       <Tabs.Screen
         name="나"
         options={{

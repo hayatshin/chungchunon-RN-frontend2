@@ -8,6 +8,9 @@ import UploadNav from "./UploadNav";
 import EditFeed from "../screens/EditFeed";
 import LikeInfo from "../screens/LikeInfo";
 import FriendFeed from "../screens/FriendFeed";
+import WritePoem from "../screens/WritePoem";
+import UploadPoem from "../screens/UploadPoem";
+import EditPoem from "../screens/EditPoem";
 
 const Stack = createNativeStackNavigator();
 
@@ -111,6 +114,54 @@ export default function LoggedInNav() {
           },
         }}
         component={FriendFeed}
+      />
+      <Stack.Screen
+        name="WritePoem"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={WritePoem}
+      />
+      <Stack.Screen
+        name="UploadPoem"
+        options={{
+          title: "미리보기",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={UploadPoem}
+      />
+      <Stack.Screen
+        name="EditPoem"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={EditPoem}
       />
     </Stack.Navigator>
   );

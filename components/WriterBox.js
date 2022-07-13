@@ -25,6 +25,7 @@ const DELETE_FEED_MUTATION = gql`
 `;
 
 export default function WriterBox({
+  path,
   feedId,
   writerAvatar,
   writerName,

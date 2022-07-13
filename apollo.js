@@ -47,6 +47,7 @@ export const cache = new InMemoryCache({
     Query: {
       fields: {
         seeAllFeeds: offsetLimitPagination(),
+        seeAllPoems: offsetLimitPagination(),
       },
     },
   },

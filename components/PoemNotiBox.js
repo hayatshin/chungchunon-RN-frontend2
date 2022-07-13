@@ -14,13 +14,13 @@ const ME_QUERY = gql`
   }
 `;
 
-export default function NotiBox() {
+export default function PoemNotiBox() {
   const { data } = useQuery(ME_QUERY);
   const [underfiftyclick, setUnderfiftyclick] = useState(false);
   const navigation = useNavigation();
   const FiftyValidation = () => {
     data?.me?.age >= 50
-      ? navigation.navigate("WriteFeed")
+      ? navigation.navigate("WritePoem")
       : setUnderfiftyclick(true);
   };
 
@@ -117,7 +117,7 @@ export default function NotiBox() {
                     color: "black",
                   }}
                 >
-                  어떤 하루를 보내고 계신가요?
+                  시 한편을 지어주세요.
                 </Text>
               </View>
             </View>

@@ -23,7 +23,7 @@ export default function Feed({ navigation }) {
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
 
-  // seeAllFeeds
+  // seeAllPoems
   const { data, loading, refetch, fetchMore } = useQuery(SEE_ALL_FEEDS_QUERY, {
     variables: {
       offset: 0,
@@ -45,6 +45,7 @@ export default function Feed({ navigation }) {
       <View style={{ width: windowWidth }}>
         {/* 작성자 */}
         <WriterBox
+          path={"feed"}
           writerAvatar={feed?.user?.avatar}
           writerName={feed?.user?.name}
           writeTime={feed?.createdAt}

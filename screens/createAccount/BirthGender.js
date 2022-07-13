@@ -45,6 +45,7 @@ export default function BirthGender({ navigation }) {
   const [verimessage, setVerimessage] = useState("");
   const [birth, setBirth] = useState("");
   const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
   const [disableConfirm, setDisableConfirm] = useState(true);
   const { register, handleSubmit, setValue, getValues } = useForm();
 
@@ -87,9 +88,12 @@ export default function BirthGender({ navigation }) {
       } else {
         setDisableConfirm(false);
         let today = new Date();
-        const checkFifty =
-          today.getFullYear() - (19 + birth.toString().substring(0, 2)) + 1 >=
-          50;
+        const age =
+          today.getFullYear() -
+          parseInt(19 + birth.toString().substring(0, 2)) +
+          1;
+        setAge(age);
+        const checkFifty = age >= 50;
         if (!checkFifty) {
           goDownY.start();
           setVeriBox(true);
@@ -117,7 +121,7 @@ export default function BirthGender({ navigation }) {
 
   // 확인 버튼
   const onConfirmBtn = () => {
-    navigation.navigate("PhoneVerification", { birth, gender });
+    navigation.navigate("PhoneVerification", { birth, gender, age });
     setDisableConfirm(true);
     setVeriBox(false);
   };
