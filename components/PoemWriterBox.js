@@ -16,16 +16,16 @@ const ME_QUERY = gql`
   }
 `;
 
-const DELETE_FEED_MUTATION = gql`
-  mutation deleteFeed($id: Int!) {
-    deleteFeed(id: $id) {
+const DELETE_POEM_MUTATION = gql`
+  mutation deletePoem($id: Int!) {
+    deletePoem(id: $id) {
       ok
       error
     }
   }
 `;
 
-export default function WriterBox({
+export default function PoemWriterBox({
   feedId,
   writerAvatar,
   writerName,
@@ -34,20 +34,23 @@ export default function WriterBox({
 }) {
   const navigation = useNavigation();
   const routename = useRoute().name;
+
   const { width: windowWidth } = Dimensions.get("window");
   const { data: meData } = useQuery(ME_QUERY);
 
-  // delete feed
-  const onUpdateFeedDelete = (cache, result) => {
+  // delete poem
+
+  const onUpdatePoemDelete = (cache, result) => {
     const {
       data: {
-        deleteFeed: { ok },
+        deletePoem: { ok },
       },
     } = result;
+    console.log(ok);
     if (ok) {
-      const cacheFeedId = `Feed:${feedId}`;
+      const cachePoemId = `Poem:${feedId}`;
       cache.evict({
-        id: cacheFeedId,
+        id: cachePoemId,
       });
     }
     if (routename === "일상") {
@@ -60,17 +63,17 @@ export default function WriterBox({
       navigation.navigate("Tabs", { screen: "시" });
     }
   };
-  const [deleteFeedMutation] = useMutation(DELETE_FEED_MUTATION, {
+
+  const [deletePoemMutation] = useMutation(DELETE_POEM_MUTATION, {
     variables: { id: parseInt(feedId) },
-    update: onUpdateFeedDelete,
+    update: onUpdatePoemDelete,
   });
 
   const completeCreatedTime = koreaDate(writeTime);
 
-  const onFeedEditBtn = () => {
-    navigation.navigate("EditFeed", { feedId });
+  const onPoemEditBtn = () => {
+    navigation.navigate("EditPoem", { poemId: feedId });
   };
-
   return (
     <View
       style={{
@@ -134,12 +137,12 @@ export default function WriterBox({
               <SmallBtn
                 text={"수정"}
                 color={"gray"}
-                pressFunction={onFeedEditBtn}
+                pressFunction={onPoemEditBtn}
               />
               <SmallBtn
                 text={"삭제"}
                 color={"main"}
-                pressFunction={deleteFeedMutation}
+                pressFunction={deletePoemMutation}
               />
             </View>
           ) : null}

@@ -56,6 +56,7 @@ export const ME_FRAGMENT = gql`
     directFeedNumber
     directCommentNumber
     directLikeNumber
+    directPoemNumber
   }
 `;
 
@@ -67,8 +68,26 @@ export const POEM_FRAGMENT = gql`
     createdAt
     updatedAt
     user {
+      id
       name
       avatar
     }
+    poemLikeNumber
+    poemCommentNumber
+    isMine
+    isLiked
+  }
+`;
+
+export const POEM_COMMENT_FRAGMENT = gql`
+  fragment PoemCommentFragment on Poemcomment {
+    id
+    user {
+      name
+      avatar
+    }
+    payload
+    createdAt
+    updatedAt
   }
 `;

@@ -41,7 +41,7 @@ export default function UploadForm({ route, navigation }) {
           },
         },
       });
-      navigation.navigate("Tabs");
+      navigation.navigate("Tabs", { screen: "일상" });
     }
   };
 

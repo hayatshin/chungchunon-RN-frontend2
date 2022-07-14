@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Dimensions, FlatList, Image } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  FlatList,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import moment from "moment";
 import styled from "styled-components/native";
 import { colors } from "../colors";
@@ -16,35 +23,16 @@ const Me_QUERY = gql`
   ${ME_FRAGMENT}
 `;
 
-const SEE_COMMUNITY_FEED_ORDER = gql`
-  query seeCommunityFeedOrder($id: Int!) {
-    seeCommunityFeedOrder(id: $id) {
+const SEE_COMMUNNITY_USERS_QUERY = gql`
+  query seeCommunityUsers($id: Int!) {
+    seeCommunityUsers(id: $id) {
       id
       name
       avatar
       directFeedNumber
-    }
-  }
-`;
-
-const SEE_COMMUNITY_COMMENT_ORDER = gql`
-  query seeCommunityCommentOrder($id: Int!) {
-    seeCommunityCommentOrder(id: $id) {
-      id
-      name
-      avatar
-      directCommentNumber
-    }
-  }
-`;
-
-const SEE_COMMUNITY_LIKE_ORDER = gql`
-  query seeCommunityLikeOrder($id: Int!) {
-    seeCommunityLikeOrder(id: $id) {
-      id
-      name
-      avatar
       directLikeNumber
+      directCommentNumber
+      directPoemNumber
     }
   }
 `;
@@ -61,7 +49,7 @@ const BodyText = styled.Text`
 `;
 
 const MenuBox = styled.TouchableOpacity`
-  width: ${(props) => props.windowWidth / 3}px;
+  width: ${(props) => props.windowWidth / 4}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -70,7 +58,7 @@ const MenuBox = styled.TouchableOpacity`
 
 export default function CommunityRank({ navigation }) {
   const screenFocus = useIsFocused();
-  const { data: meData } = useQuery(Me_QUERY);
+  const { data: meData, refetch: meRefetch } = useQuery(Me_QUERY);
 
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   const startOfWeek = moment()
@@ -79,23 +67,13 @@ export default function CommunityRank({ navigation }) {
     .substring(0, 10);
   const today = moment().format("YYYY/MM/DD hh:mm").substring(0, 10);
 
-  // 일상, 댓글, 좋아요
-  const {
-    data: communityFeedData,
-    loading: communityFeedLoading,
-    refetch: communityFeedRefetch,
-  } = useQuery(SEE_COMMUNITY_FEED_ORDER, {
-    variables: {
-      id: parseInt(meData?.me?.community?.id),
-    },
-  });
+  // 일상, 댓글, 좋아요, 시
 
-  const { data: communityCommentData } = useQuery(SEE_COMMUNITY_COMMENT_ORDER, {
-    variables: {
-      id: parseInt(meData?.me?.community?.id),
-    },
-  });
-  const { data: communityLikeData } = useQuery(SEE_COMMUNITY_LIKE_ORDER, {
+  const {
+    data: communitydata,
+    loading: communityloading,
+    refetch: communityrefetch,
+  } = useQuery(SEE_COMMUNNITY_USERS_QUERY, {
     variables: {
       id: parseInt(meData?.me?.community?.id),
     },
@@ -104,78 +82,91 @@ export default function CommunityRank({ navigation }) {
   const [feedClick, setFeedClick] = useState(true);
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
-  const [flatlistdata, setFlatlistdata] = useState([]);
+  const [poemClick, setPoemClick] = useState(false);
+
+  const [datafinish, setDatafinish] = useState(false);
+  const [data, setData] = useState([]);
+
   const [myrankOrder, setMyrankOrder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
-    if (!communityFeedLoading) {
-      communityFeedRefetch();
-
-      setFlatlistdata(
-        [...communityFeedData?.seeCommunityFeedOrder].sort(function (a, b) {
-          return b.directFeedNumber - a.directFeedNumber;
-        })
-      );
-    }
-  }, []);
+    meRefetch();
+    communityrefetch();
+  }, [screenFocus]);
 
   useEffect(() => {
-    if (feedClick || screenFocus) {
-      setFlatlistdata(
-        [...communityFeedData?.seeCommunityFeedOrder].sort(function (a, b) {
-          return b.directFeedNumber - a.directFeedNumber;
-        })
-      );
-    } else if (commentClick) {
-      setFlatlistdata(
-        [...communityCommentData?.seeCommunityCommentOrder].sort(function (
-          a,
-          b
-        ) {
-          return b.directCommentNumber - a.directCommentNumber;
-        })
-      );
-    } else if (likeClick) {
-      setFlatlistdata(
-        [...communityLikeData.seeCommunityLikeOrder].sort(function (a, b) {
-          return b.directLikeNumber - a.directLikeNumber;
-        })
-      );
+    if (communitydata !== undefined) {
+      if (feedClick) {
+        setData((oldarray) =>
+          [...communitydata.seeCommunityUsers].sort(function (a, b) {
+            return b.directFeedNumber - a.directFeedNumber;
+          })
+        );
+      } else if (commentClick) {
+        setData((oldarray) =>
+          [...communitydata.seeCommunityUsers].sort(function (a, b) {
+            return b.directCommentNumber - a.directCommentNumber;
+          })
+        );
+      } else if (likeClick) {
+        setData((oldarray) =>
+          [...communitydata.seeCommunityUsers].sort(function (a, b) {
+            return b.directLikeNumber - a.directLikeNumber;
+          })
+        );
+      } else if (poemClick) {
+        setData((oldarray) =>
+          [...communitydata.seeCommunityUsers].sort(function (a, b) {
+            return b.directPoemNumber - a.directPoemNumber;
+          })
+        );
+      }
     }
-  }, [screenFocus, feedClick, commentClick, likeClick]);
+  }, [communitydata, feedClick, commentClick, likeClick, poemClick]);
 
-  useEffect(
-    () =>
-      setMyrankOrder(
-        [...flatlistdata].findIndex((object) => {
-          return object.id === meData?.me?.id;
-        })
-      ),
-    [flatlistdata]
-  );
+  useEffect(() => {
+    setDatafinish(true);
+    setMyrankOrder(
+      [...data].findIndex((object) => {
+        return object.id === meData?.me?.id;
+      })
+    );
+  }, [data]);
 
   const feedClickFunction = () => {
     setFeedClick(true);
     setCommentClick(false);
     setLikeClick(false);
+    setPoemClick(false);
   };
 
   const commentClickFunction = () => {
     setFeedClick(false);
     setCommentClick(true);
     setLikeClick(false);
+    setPoemClick(false);
   };
 
   const likeClickFunction = () => {
     setFeedClick(false);
     setCommentClick(false);
     setLikeClick(true);
+    setPoemClick(false);
+  };
+
+  const poemClickFunction = () => {
+    setFeedClick(false);
+    setCommentClick(false);
+    setLikeClick(false);
+    setPoemClick(true);
   };
 
   const refresh = async () => {
     setRefreshing(true);
-    await refetch();
+    await meRefetch();
+    await communityrefetch();
     setRefreshing(false);
   };
 
@@ -222,12 +213,26 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{item.directCommentNumber || 0} 개</BodyText>
         ) : likeClick ? (
           <BodyText>{item.directLikeNumber || 0} 개</BodyText>
+        ) : poemClick ? (
+          <BodyText>{item.directPoemNumber || 0} 개</BodyText>
         ) : null}
       </View>
     );
   };
+  console.log(scroll);
 
-  return flatlistdata === [] ? null : (
+  return !datafinish ? (
+    <View
+      style={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator size={30} color={colors.mainColor}></ActivityIndicator>
+    </View>
+  ) : (
     <View
       style={{
         flex: 1,
@@ -237,6 +242,41 @@ export default function CommunityRank({ navigation }) {
         alignItems: "center",
       }}
     >
+      {/* 소속 기관 */}
+      {scroll ? null : (
+        <View
+          style={{
+            width: windowWidth,
+            paddingVertical: 20,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: 150,
+              height: 60,
+              borderWidth: 1,
+              borderColor: colors.lightGray,
+              borderRadius: 5,
+              marginRight: 15,
+            }}
+          >
+            <Image
+              style={{ flex: 1 }}
+              source={{ uri: meData?.me?.community.communityLogo }}
+              resizeMode="contain"
+            />
+          </View>
+          <Text
+            style={{ fontFamily: "Spoqa", fontSize: 20, fontWeight: "700" }}
+          >
+            {meData?.me?.community.communityName}
+          </Text>
+        </View>
+      )}
       {/* 헤더 */}
       <View
         style={{
@@ -265,7 +305,6 @@ export default function CommunityRank({ navigation }) {
           windowWidth={windowWidth}
           height={windowHeight}
           onPress={feedClickFunction}
-          feedClick={feedClick}
           style={{
             borderColor: feedClick ? colors.mainColor : colors.lightGray,
           }}
@@ -275,8 +314,17 @@ export default function CommunityRank({ navigation }) {
         <MenuBox
           windowWidth={windowWidth}
           height={windowHeight}
+          onPress={poemClickFunction}
+          style={{
+            borderColor: poemClick ? colors.mainColor : colors.lightGray,
+          }}
+        >
+          <HeaderText>시</HeaderText>
+        </MenuBox>
+        <MenuBox
+          windowWidth={windowWidth}
+          height={windowHeight}
           onPress={commentClickFunction}
-          commentClick={commentClick}
           style={{
             borderColor: commentClick ? colors.mainColor : colors.lightGray,
           }}
@@ -287,7 +335,6 @@ export default function CommunityRank({ navigation }) {
           windowWidth={windowWidth}
           height={windowHeight}
           onPress={likeClickFunction}
-          likeClick={likeClick}
           style={{
             borderColor: likeClick ? colors.mainColor : colors.lightGray,
           }}
@@ -297,7 +344,9 @@ export default function CommunityRank({ navigation }) {
       </View>
       {/* 순위 리스트 */}
       <FlatList
-        data={flatlistdata}
+        onScrollToTop={() => setScroll(false)}
+        onScrollEndDrag={() => setScroll(true)}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={RankRow}
         refreshing={refreshing}
@@ -347,6 +396,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{meData?.me?.directCommentNumber || 0} 개</BodyText>
         ) : likeClick ? (
           <BodyText>{meData?.me?.directLikeNumber || 0} 개</BodyText>
+        ) : poemClick ? (
+          <BodyText>{meData?.me?.directPoemNumber || 0} 개</BodyText>
         ) : null}
       </View>
     </View>

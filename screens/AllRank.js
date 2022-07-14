@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   Dimensions,
   TouchableOpacity,
   FlatList,
@@ -25,35 +24,16 @@ const Me_QUERY = gql`
   ${ME_FRAGMENT}
 `;
 
-const SEE_ALL_FEED_ORDER = gql`
-  query seeAllFeedOrder {
-    seeAllFeedOrder {
+const SEE_ALL_USERS_QUERY = gql`
+  query seeAllUsers {
+    seeAllUsers {
       id
       name
       avatar
       directFeedNumber
-    }
-  }
-`;
-
-const SEE_ALL_COMMENT_ORDER = gql`
-  query seeAllCommentOrder {
-    seeAllCommentOrder {
-      id
-      name
-      avatar
-      directCommentNumber
-    }
-  }
-`;
-
-const SEE_ALL_LIKE_ORDER = gql`
-  query seeAllLikeOrder {
-    seeAllLikeOrder {
-      id
-      name
-      avatar
       directLikeNumber
+      directCommentNumber
+      directPoemNumber
     }
   }
 `;
@@ -70,7 +50,7 @@ const BodyText = styled.Text`
 `;
 
 const MenuBox = styled.TouchableOpacity`
-  width: ${(props) => props.windowWidth / 3}px;
+  width: ${(props) => props.windowWidth / 4}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -103,7 +83,7 @@ export default function AllRank({ navigation }) {
   }, []);
 
   const screenFocus = useIsFocused();
-  const { data: meData } = useQuery(Me_QUERY);
+  const { data: meData, refetch: meRefetch } = useQuery(Me_QUERY);
   const communityExist = meData?.me?.community?.communityName !== "없음";
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   const startOfWeek = moment()
@@ -112,87 +92,103 @@ export default function AllRank({ navigation }) {
     .substring(0, 10);
   const today = moment().format("YYYY/MM/DD hh:mm").substring(0, 10);
 
-  // 일상, 댓글, 좋아요
+  // 일상, 댓글, 좋아요, 시
 
   const {
-    data: allFeedData,
-    loading: allFeedLoading,
-    refetch: allFeedRefetch,
-  } = useQuery(SEE_ALL_FEED_ORDER);
-  const { data: allCommentData } = useQuery(SEE_ALL_COMMENT_ORDER);
-  const { data: allLikeData } = useQuery(SEE_ALL_LIKE_ORDER);
+    data: alluserdata,
+    loading: alluserlaoding,
+    refetch: alluserrefetch,
+  } = useQuery(SEE_ALL_USERS_QUERY);
 
   const [feedClick, setFeedClick] = useState(true);
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
-  const [flatlistdata, setFlatlistdata] = useState([]);
+  const [poemClick, setPoemClick] = useState(false);
+
+  const [datafinish, setDatafinish] = useState(false);
+  const [data, setData] = useState([]);
+
   const [myrankOrder, setMyrankOrder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (!allFeedLoading) {
-      allFeedRefetch();
-      setFlatlistdata(
-        [...allFeedData.seeAllFeedOrder].sort(function (a, b) {
-          return b.directFeedNumber - a.directFeedNumber;
-        })
-      );
-    }
-  }, []);
+    meRefetch();
+    alluserrefetch();
+  }, [screenFocus]);
 
   useEffect(() => {
-    if (feedClick || screenFocus) {
-      setFlatlistdata(
-        [...allFeedData.seeAllFeedOrder].sort(function (a, b) {
-          return b.directFeedNumber - a.directFeedNumber;
-        })
-      );
-    } else if (commentClick) {
-      setFlatlistdata(
-        [...allCommentData.seeAllCommentOrder].sort(function (a, b) {
-          return b.directCommentNumber - a.directCommentNumber;
-        })
-      );
-    } else if (likeClick) {
-      setFlatlistdata(
-        [...allLikeData.seeAllLikeOrder].sort(function (a, b) {
-          return b.directLikeNumber - a.directLikeNumber;
-        })
-      );
+    if (alluserdata !== undefined) {
+      if (feedClick) {
+        setData((oldarray) =>
+          [...alluserdata.seeAllUsers].sort(function (a, b) {
+            return b.directFeedNumber - a.directFeedNumber;
+          })
+        );
+      } else if (commentClick) {
+        setData((oldarray) =>
+          [...alluserdata.seeAllUsers].sort(function (a, b) {
+            return b.directCommentNumber - a.directCommentNumber;
+          })
+        );
+      } else if (likeClick) {
+        setData((oldarray) =>
+          [...alluserdata.seeAllUsers].sort(function (a, b) {
+            return b.directLikeNumber - a.directLikeNumber;
+          })
+        );
+      } else if (poemClick) {
+        setData((oldarray) =>
+          [...alluserdata.seeAllUsers].sort(function (a, b) {
+            return b.directPoemNumber - a.directPoemNumber;
+          })
+        );
+      }
     }
-  }, [screenFocus, feedClick, commentClick, likeClick]);
+  }, [alluserdata, feedClick, commentClick, likeClick, poemClick]);
 
-  useEffect(
-    () =>
-      setMyrankOrder(
-        [...flatlistdata].findIndex((object) => {
-          return object.id === meData?.me?.id;
-        })
-      ),
-    [flatlistdata]
-  );
+  useEffect(() => {
+    setDatafinish(true);
+    setMyrankOrder(
+      [...data].findIndex((object) => {
+        return object.id === meData?.me?.id;
+      })
+    );
+  }, [data]);
 
   const feedClickFunction = () => {
     setFeedClick(true);
     setCommentClick(false);
     setLikeClick(false);
+    setPoemClick(false);
   };
 
   const commentClickFunction = () => {
     setFeedClick(false);
     setCommentClick(true);
     setLikeClick(false);
+    setPoemClick(false);
   };
 
   const likeClickFunction = () => {
     setFeedClick(false);
     setCommentClick(false);
     setLikeClick(true);
+    setPoemClick(false);
+  };
+
+  const poemClickFunction = () => {
+    meRefetch();
+    alluserrefetch();
+    setFeedClick(false);
+    setCommentClick(false);
+    setLikeClick(false);
+    setPoemClick(true);
   };
 
   const refresh = async () => {
     setRefreshing(true);
-    await refetch();
+    await meRefetch();
+    await alluserrefetch();
     setRefreshing(false);
   };
 
@@ -239,12 +235,24 @@ export default function AllRank({ navigation }) {
           <BodyText>{item.directCommentNumber || 0} 개</BodyText>
         ) : likeClick ? (
           <BodyText>{item.directLikeNumber || 0} 개</BodyText>
+        ) : poemClick ? (
+          <BodyText>{item.directPoemNumber || 0} 개</BodyText>
         ) : null}
       </View>
     );
   };
-
-  return flatlistdata === [] ? null : (
+  return !datafinish ? (
+    <View
+      style={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator size={30} color={colors.mainColor}></ActivityIndicator>
+    </View>
+  ) : (
     <View
       style={{
         flex: 1,
@@ -282,7 +290,6 @@ export default function AllRank({ navigation }) {
           windowWidth={windowWidth}
           height={windowHeight}
           onPress={feedClickFunction}
-          feedClick={feedClick}
           style={{
             borderColor: feedClick ? colors.mainColor : colors.lightGray,
           }}
@@ -292,8 +299,17 @@ export default function AllRank({ navigation }) {
         <MenuBox
           windowWidth={windowWidth}
           height={windowHeight}
+          onPress={poemClickFunction}
+          style={{
+            borderColor: poemClick ? colors.mainColor : colors.lightGray,
+          }}
+        >
+          <HeaderText>시</HeaderText>
+        </MenuBox>
+        <MenuBox
+          windowWidth={windowWidth}
+          height={windowHeight}
           onPress={commentClickFunction}
-          commentClick={commentClick}
           style={{
             borderColor: commentClick ? colors.mainColor : colors.lightGray,
           }}
@@ -304,7 +320,6 @@ export default function AllRank({ navigation }) {
           windowWidth={windowWidth}
           height={windowHeight}
           onPress={likeClickFunction}
-          likeClick={likeClick}
           style={{
             borderColor: likeClick ? colors.mainColor : colors.lightGray,
           }}
@@ -314,7 +329,7 @@ export default function AllRank({ navigation }) {
       </View>
       {/* 순위 리스트 */}
       <FlatList
-        data={flatlistdata}
+        data={data}
         keyExtractor={(item) => item.id}
         renderItem={RankRow}
         refreshing={refreshing}
@@ -364,6 +379,8 @@ export default function AllRank({ navigation }) {
           <BodyText>{meData?.me?.directCommentNumber || 0} 개</BodyText>
         ) : likeClick ? (
           <BodyText>{meData?.me?.directLikeNumber || 0} 개</BodyText>
+        ) : poemClick ? (
+          <BodyText>{meData?.me?.directPoemNumber || 0} 개</BodyText>
         ) : null}
       </View>
     </View>

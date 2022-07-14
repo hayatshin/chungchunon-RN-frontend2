@@ -12,6 +12,7 @@ import { colors } from "../colors";
 import ImageSwiper from "../components/ImageSwiper";
 import SmallBtn from "../components/SmallBtn";
 import { FEED_FRAGMENT } from "../fragments";
+import { useRoute } from "@react-navigation/native";
 
 const SEE_CERTAIN_FEED_QUERY = gql`
   query seeCertainFeed($id: Int!) {
@@ -36,6 +37,7 @@ export default function EditFeed({ route, navigation }) {
   const [caption, setCaption] = useState("");
   const [inputClick, setInputClick] = useState(false);
   const feedId = route?.params?.feedId;
+  const routename = useRoute().name;
 
   const { data: seeCertainFeedData } = useQuery(SEE_CERTAIN_FEED_QUERY, {
     variables: {
@@ -59,7 +61,7 @@ export default function EditFeed({ route, navigation }) {
           },
         },
       });
-      navigation.navigate("Tabs", { screen: "일상" });
+      navigation.goBack();
     }
   };
 

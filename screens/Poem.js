@@ -4,7 +4,9 @@ import Constants from "expo-constants";
 import React, { useEffect, useState } from "react";
 import { View, Text, Dimensions, FlatList } from "react-native";
 import { colors } from "../colors";
+import PoemLikeAndComment from "../components/PoemLikeAndComment";
 import PoemNotiBox from "../components/PoemNotiBox";
+import PoemWriterBox from "../components/PoemWriterBox";
 import WriterBox from "../components/WriterBox";
 import { POEM_FRAGMENT } from "../fragments";
 
@@ -52,6 +54,7 @@ export default function Poem() {
     >
       <PoemNotiBox />
       <FlatList
+        showsVerticalScrollIndicator={false}
         onEndReachedThreshold={0.1}
         onEndReached={() =>
           fetchMore({
@@ -74,8 +77,7 @@ export default function Poem() {
                 alignItems: "center",
               }}
             >
-              <WriterBox
-                path={"poem"}
+              <PoemWriterBox
                 writerAvatar={item?.user?.avatar}
                 writerName={item?.user?.name}
                 writeTime={item?.createdAt}
@@ -93,7 +95,6 @@ export default function Poem() {
                   backgroundColor: colors.brown,
                   borderRadius: 5,
                   marginTop: 10,
-                  marginBottom: 30,
                 }}
               >
                 <View
@@ -114,7 +115,7 @@ export default function Poem() {
                       textAlign: "center",
                     }}
                   >
-                    {item.poemTitle}
+                    {item?.poemTitle}
                   </Text>
                   <Text
                     style={{
@@ -125,12 +126,23 @@ export default function Poem() {
                       marginBottom: 20,
                     }}
                   >
-                    {item.user.name}
+                    {item?.user?.name}
                   </Text>
                   <Text style={{ fontFamily: "Spoqa", fontSize: 17 }}>
-                    {item.poemCaption}
+                    {item?.poemCaption}
                   </Text>
                 </View>
+              </View>
+              {/* 좋아요 와 댓글 */}
+              <View
+                style={{ width: windowWidth, padding: 15, marginBottom: 20 }}
+              >
+                <PoemLikeAndComment
+                  likeNumber={item?.poemLikeNumber}
+                  commentNumber={item?.poemCommentNumber}
+                  poemId={item?.id}
+                  isLiked={item?.isLiked}
+                />
               </View>
             </View>
           );

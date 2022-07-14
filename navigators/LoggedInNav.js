@@ -11,6 +11,7 @@ import FriendFeed from "../screens/FriendFeed";
 import WritePoem from "../screens/WritePoem";
 import UploadPoem from "../screens/UploadPoem";
 import EditPoem from "../screens/EditPoem";
+import PoemComment from "../screens/PoemComment";
 
 const Stack = createNativeStackNavigator();
 
@@ -162,6 +163,22 @@ export default function LoggedInNav() {
           },
         }}
         component={EditPoem}
+      />
+      <Stack.Screen
+        name="PoemComment"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+          },
+          headerTintColor: colors.lightMain,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={PoemComment}
       />
     </Stack.Navigator>
   );

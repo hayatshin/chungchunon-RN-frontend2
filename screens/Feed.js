@@ -45,7 +45,6 @@ export default function Feed({ navigation }) {
       <View style={{ width: windowWidth }}>
         {/* 작성자 */}
         <WriterBox
-          path={"feed"}
           writerAvatar={feed?.user?.avatar}
           writerName={feed?.user?.name}
           writeTime={feed?.createdAt}
@@ -92,6 +91,7 @@ export default function Feed({ navigation }) {
     >
       <NotiBox />
       <FlatList
+        showsVerticalScrollIndicator={false}
         onEndReachedThreshold={0.1}
         onEndReached={() =>
           fetchMore({
