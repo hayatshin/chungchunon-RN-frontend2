@@ -17,7 +17,7 @@ import { gql, useMutation } from "@apollo/client";
 import { TWILLIO_BASE_URL } from "@env";
 import { logUserIn } from "../apollo";
 
-const PRACTICE_BASE_URL = "http://172.30.1.1:4000";
+const PRACTICE_BASE_URL = "http://172.30.1.46:4000";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {

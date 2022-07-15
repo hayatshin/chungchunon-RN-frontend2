@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { colors } from "../colors";
 import Constants from "expo-constants";
-import { FEED_FRAGMENT, ME_FRAGMENT, POEM_FRAGMENT } from "../fragments";
+import { FEED_POEM_FRAGMENT, ME_FRAGMENT } from "../fragments";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
 import WriterBox from "../components/WriterBox";
@@ -17,7 +17,6 @@ import { useIsFocused } from "@react-navigation/native";
 import InfoNotiBox from "../components/InfoNotiBox";
 import PoemWriterBox from "../components/PoemWriterBox";
 import PoemLikeAndComment from "../components/PoemLikeAndComment";
-import { useRoute } from "@react-navigation/native";
 
 const Me_QUERY = gql`
   query me {
@@ -28,22 +27,13 @@ const Me_QUERY = gql`
   ${ME_FRAGMENT}
 `;
 
-const SEE_CERTAIN_USER_FEED_QUERY = gql`
-  query seeCertainUserFeed($offset: Int!, $id: Int!) {
-    seeCertainUserFeed(offset: $offset, id: $id) {
-      ...FeedFragment
+const SEE_CERTAIN_USER_FEED_POEM = gql`
+  query seeCertainUserFeedPoem($offset: Int!, $id: Int!) {
+    seeCertainUserFeedPoem(offset: $offset, id: $id) {
+      ...FeedPoemFragment
     }
   }
-  ${FEED_FRAGMENT}
-`;
-
-const SEE_CERTAIN_USER_POEM_QUERY = gql`
-  query seeCertainUserPoem($offset: Int!, $id: Int!) {
-    seeCertainUserPoem(offset: $offset, id: $id) {
-      ...PoemFragement
-    }
-  }
-  ${POEM_FRAGMENT}
+  ${FEED_POEM_FRAGMENT}
 `;
 
 export default function Me() {
@@ -53,24 +43,13 @@ export default function Me() {
   const [refreshing, setRefreshing] = useState(false);
   // meQuery
   const { data: meData } = useQuery(Me_QUERY);
-  // seeCertainUserFeed & seeCertainUserPoem
+  // seeCertainUserFeedPoem
   const {
-    data: feedData,
-    loading: feedLoading,
-    refetch: feedRefetch,
-    fetchMore: feedFetchmore,
-  } = useQuery(SEE_CERTAIN_USER_FEED_QUERY, {
-    variables: {
-      offset: 0,
-      id: parseInt(meData?.me?.id),
-    },
-  });
-  const {
-    data: poemData,
-    loading: poemLoading,
-    refetch: poemRefetch,
-    fetchMore: poemFetchmore,
-  } = useQuery(SEE_CERTAIN_USER_POEM_QUERY, {
+    data: fpData,
+    loading: fpLoading,
+    refetch: fpRefetch,
+    fetchMore: fpFetchmore,
+  } = useQuery(SEE_CERTAIN_USER_FEED_POEM, {
     variables: {
       offset: 0,
       id: parseInt(meData?.me?.id),
@@ -81,24 +60,18 @@ export default function Me() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    feedRefetch();
-    poemRefetch();
+    fpRefetch();
   }, [screenFocus]);
 
   useEffect(() => {
-    if (feedData && poemData) {
-      const feedresult = feedData.seeCertainUserFeed;
-      const poemresult = poemData.seeCertainUserPoem;
-      const combineresult = feedresult.concat(poemresult);
-      if (combineresult) {
-        setData((oldarray) =>
-          [...combineresult].sort(function (a, b) {
-            return b.createdAt - a.createdAt;
-          })
-        );
-      }
+    if (fpData) {
+      setData((oldarray) =>
+        [...fpData.seeCertainUserFeedPoem].sort(function (a, b) {
+          return b.createdAt - a.createdAt;
+        })
+      );
     }
-  }, [feedData, poemData]);
+  }, [fpData]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -108,8 +81,7 @@ export default function Me() {
 
   const refresh = async () => {
     setRefreshing(true);
-    await feedRefetch();
-    await poemRefetch();
+    await fpRefetch();
     setRefreshing(false);
   };
 
@@ -231,7 +203,6 @@ export default function Me() {
   //     </View>
   //   );
   // };
-
   return (
     <View
       style={{
@@ -243,16 +214,12 @@ export default function Me() {
       <InfoNotiBox userId={meData?.me?.id} />
       {dataLoading ? (
         <FlatList
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.3}
           onEndReached={() => {
-            feedFetchmore({
+            fpFetchmore({
               variables: {
-                offset: data.length,
-              },
-            });
-            poemFetchmore({
-              variables: {
-                offset: data.length,
+                id: parseInt(meData?.me?.id),
+                offset: parseInt(data.length),
               },
             });
           }}
@@ -261,7 +228,7 @@ export default function Me() {
           keyExtractor={(feed) => feed.id}
           data={data}
           renderItem={({ item }) => {
-            if (item.__typename === "Feed") {
+            if (item.caption !== null) {
               return (
                 <View style={{ width: windowWidth }}>
                   {/* 작성자 */}

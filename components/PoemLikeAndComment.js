@@ -73,7 +73,7 @@ export default function PoemLikeAndComment({
     >
       {/* 좋아요 */}
       <TouchableOpacity
-        onPress={() => navigation.navigate("LikeInfo", { feedId })}
+        onPress={() => navigation.navigate("LikeInfo", { poemId })}
       >
         <View
           style={{

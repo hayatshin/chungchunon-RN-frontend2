@@ -1,14 +1,24 @@
 import { gql, useQuery } from "@apollo/client";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { colors } from "../colors";
 import { ME_FRAGMENT } from "../fragments";
+import SmallBtn from "./SmallBtn";
 
 const SEE_PROFILE_QUERY = gql`
   query seeProfile($id: Int!) {
     seeProfile(id: $id) {
+      ...MeFragment
+    }
+  }
+  ${ME_FRAGMENT}
+`;
+
+const Me_QUERY = gql`
+  query me {
+    me {
       ...MeFragment
     }
   }
@@ -37,13 +47,16 @@ const InfoText = styled.Text`
 `;
 
 export default function InfoNotiBox({ userId }) {
+  const navigation = useNavigation();
   const { data } = useQuery(SEE_PROFILE_QUERY, {
     variables: {
       id: parseInt(userId),
     },
   });
-  const navigation = useNavigation();
+  const { data: meData } = useQuery(Me_QUERY);
+  const meCheck = userId === meData?.me?.id;
   const [click, setClick] = useState(false);
+  const routename = useRoute().name;
   return click ? (
     <TouchableOpacity
       onPress={() => setClick(false)}
@@ -76,14 +89,11 @@ export default function InfoNotiBox({ userId }) {
       onPress={() => setClick(true)}
       style={{
         width: "100%",
-        height: 150,
-        marginBottom: 5,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: 5,
-        backgroundColor: "white",
+        marginTop: routename === "나" ? 20 : 0,
       }}
     >
       {/* 자기 정보 */}
@@ -92,18 +102,23 @@ export default function InfoNotiBox({ userId }) {
           width: "100%",
           display: "flex",
           flexDirection: "row",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           alignItems: "center",
           paddingHorizontal: 15,
         }}
       >
         {/* 로그인 유저 사진 */}
-        <View
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("ImageZoomIn", {
+              infoPhoto: data?.seeProfile?.avatar,
+            })
+          }
           style={{
             width: "20%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "flex-start",
+            alignItems: "center",
           }}
         >
           <Image
@@ -114,15 +129,15 @@ export default function InfoNotiBox({ userId }) {
             }}
             source={{ uri: data?.seeProfile?.avatar }}
           />
-        </View>
+        </TouchableOpacity>
         {/* 정보창 */}
         <View
           style={{
-            width: "75%",
+            width: "55%",
             display: "flex",
             borderRadius: 10,
-            paddingVertical: 10,
-            marginTop: 10,
+            paddingBottom: 10,
+            justifyContent: "flex-start",
           }}
         >
           <InfoBox>
@@ -140,7 +155,6 @@ export default function InfoNotiBox({ userId }) {
           <View
             style={{
               width: "80%",
-              // backgroundColor: colors.lightGray,
               display: "flex",
               alignItems: "center",
               borderRadius: 5,
@@ -148,13 +162,31 @@ export default function InfoNotiBox({ userId }) {
               marginTop: 7,
             }}
           >
-            <Text
-              style={{ fontFamily: "Spoqa", fontWeight: "700", fontSize: 20 }}
-            >
-              " {data?.seeProfile?.bio} "
-            </Text>
+            {data?.seeProfile?.bio ? (
+              <Text
+                style={{ fontFamily: "Spoqa", fontWeight: "700", fontSize: 20 }}
+              >
+                " {data?.seeProfile?.bio} "
+              </Text>
+            ) : null}
           </View>
         </View>
+        {/* 수정 버튼 */}
+        {meCheck ? (
+          <TouchableOpacity
+            style={{
+              width: "25%",
+              height: "100%",
+              display: "flex",
+              alignItems: "flex-end",
+            }}
+          >
+            <SmallBtn
+              text={"수정"}
+              pressFunction={() => navigation.navigate("EditProfile")}
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
       {/* 경계 */}
       <View

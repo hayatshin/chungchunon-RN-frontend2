@@ -128,7 +128,8 @@ export default function WriterBox({
                 display: "flex",
                 flexDirection: "row",
                 width: "45%",
-                justifyContent: "space-between",
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
               }}
             >
               <SmallBtn
@@ -136,6 +137,7 @@ export default function WriterBox({
                 color={"gray"}
                 pressFunction={onFeedEditBtn}
               />
+              <View style={{ width: 15 }}></View>
               <SmallBtn
                 text={"삭제"}
                 color={"main"}

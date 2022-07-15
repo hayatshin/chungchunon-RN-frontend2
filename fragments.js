@@ -91,3 +91,26 @@ export const POEM_COMMENT_FRAGMENT = gql`
     updatedAt
   }
 `;
+
+export const FEED_POEM_FRAGMENT = gql`
+  fragment FeedPoemFragment on Feedpoem {
+    id
+    createdAt
+    updatedAt
+    user {
+      id
+      name
+      avatar
+    }
+    isMine
+    isLiked
+    poemTitle
+    poemCaption
+    poemLikeNumber
+    poemCommentNumber
+    photos
+    caption
+    likeNumber
+    commentNumber
+  }
+`;

@@ -6,6 +6,7 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  LogBox,
 } from "react-native";
 import moment from "moment";
 import styled from "styled-components/native";
@@ -54,10 +55,15 @@ const MenuBox = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom-width: 1px;
 `;
 
 export default function AllRank({ navigation }) {
+  const startOfWeek = moment()
+    .startOf("week")
+    .format("YYYY/MM/DD hh:mm")
+    .substring(0, 10);
+  const today = moment().format("YYYY/MM/DD hh:mm").substring(0, 10);
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
@@ -86,11 +92,6 @@ export default function AllRank({ navigation }) {
   const { data: meData, refetch: meRefetch } = useQuery(Me_QUERY);
   const communityExist = meData?.me?.community?.communityName !== "없음";
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
-  const startOfWeek = moment()
-    .startOf("week")
-    .format("YYYY/MM/DD hh:mm")
-    .substring(0, 10);
-  const today = moment().format("YYYY/MM/DD hh:mm").substring(0, 10);
 
   // 일상, 댓글, 좋아요, 시
 
@@ -291,7 +292,8 @@ export default function AllRank({ navigation }) {
           height={windowHeight}
           onPress={feedClickFunction}
           style={{
-            borderColor: feedClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: feedClick ? 2 : 1,
+            borderColor: feedClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>일상</HeaderText>
@@ -301,7 +303,8 @@ export default function AllRank({ navigation }) {
           height={windowHeight}
           onPress={poemClickFunction}
           style={{
-            borderColor: poemClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: poemClick ? 2 : 1,
+            borderColor: poemClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>시</HeaderText>
@@ -311,7 +314,8 @@ export default function AllRank({ navigation }) {
           height={windowHeight}
           onPress={commentClickFunction}
           style={{
-            borderColor: commentClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: commentClick ? 2 : 1,
+            borderColor: commentClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>댓글</HeaderText>
@@ -321,7 +325,8 @@ export default function AllRank({ navigation }) {
           height={windowHeight}
           onPress={likeClickFunction}
           style={{
-            borderColor: likeClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: likeClick ? 2 : 1,
+            borderColor: likeClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>좋아요</HeaderText>

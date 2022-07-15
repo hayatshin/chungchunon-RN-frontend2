@@ -1,6 +1,12 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
 import NotiBox from "../components/NotiBox";
@@ -8,6 +14,7 @@ import WriterBox from "../components/WriterBox";
 import Constants from "expo-constants";
 import { FEED_FRAGMENT } from "../fragments";
 import { useIsFocused } from "@react-navigation/native";
+import { colors } from "../colors";
 
 const SEE_ALL_FEEDS_QUERY = gql`
   query seeAllFeeds($offset: Int!) {
@@ -24,15 +31,39 @@ export default function Feed({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   // seeAllPoems
-  const { data, loading, refetch, fetchMore } = useQuery(SEE_ALL_FEEDS_QUERY, {
+  const {
+    data: feedData,
+    loading,
+    refetch,
+    fetchMore,
+  } = useQuery(SEE_ALL_FEEDS_QUERY, {
     variables: {
       offset: 0,
     },
   });
 
+  const [dataLoading, setDataLoading] = useState(false);
+  const [data, setData] = useState([]);
+
   useEffect(() => {
     refetch();
   }, [screenFocus]);
+
+  useEffect(() => {
+    if (feedData) {
+      setData((oldarray) =>
+        [...feedData.seeAllFeeds].sort(function (a, b) {
+          return b.createdAt - a.createdAt;
+        })
+      );
+    }
+  }, [feedData]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      setDataLoading(true);
+    }
+  }, [data]);
 
   const refresh = async () => {
     setRefreshing(true);
@@ -90,22 +121,35 @@ export default function Feed({ navigation }) {
       }}
     >
       <NotiBox />
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        onEndReachedThreshold={0.1}
-        onEndReached={() =>
-          fetchMore({
-            variables: {
-              offset: data?.seeAllFeeds?.length,
-            },
-          })
-        }
-        refreshing={refreshing}
-        onRefresh={refresh}
-        keyExtractor={(feed) => feed?.id}
-        data={data?.seeAllFeeds}
-        renderItem={eachPhoto}
-      />
+      {dataLoading ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          onEndReachedThreshold={0.3}
+          onEndReached={() =>
+            fetchMore({
+              variables: {
+                offset: data.length,
+              },
+            })
+          }
+          refreshing={refreshing}
+          onRefresh={refresh}
+          keyExtractor={(feed) => feed?.id}
+          data={data}
+          renderItem={eachPhoto}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={30} color={colors.mainColor} />
+        </View>
+      )}
     </View>
   );
 }

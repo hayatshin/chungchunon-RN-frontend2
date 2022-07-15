@@ -53,7 +53,6 @@ const MenuBox = styled.TouchableOpacity`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom-width: 1px;
 `;
 
 export default function CommunityRank({ navigation }) {
@@ -89,7 +88,6 @@ export default function CommunityRank({ navigation }) {
 
   const [myrankOrder, setMyrankOrder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
     meRefetch();
@@ -219,7 +217,6 @@ export default function CommunityRank({ navigation }) {
       </View>
     );
   };
-  console.log(scroll);
 
   return !datafinish ? (
     <View
@@ -243,40 +240,36 @@ export default function CommunityRank({ navigation }) {
       }}
     >
       {/* 소속 기관 */}
-      {scroll ? null : (
+      <View
+        style={{
+          width: windowWidth,
+          paddingVertical: 20,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <View
           style={{
-            width: windowWidth,
-            paddingVertical: 20,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
+            width: 150,
+            height: 60,
+            borderWidth: 1,
+            borderColor: colors.lightGray,
+            borderRadius: 5,
+            marginRight: 15,
           }}
         >
-          <View
-            style={{
-              width: 150,
-              height: 60,
-              borderWidth: 1,
-              borderColor: colors.lightGray,
-              borderRadius: 5,
-              marginRight: 15,
-            }}
-          >
-            <Image
-              style={{ flex: 1 }}
-              source={{ uri: meData?.me?.community.communityLogo }}
-              resizeMode="contain"
-            />
-          </View>
-          <Text
-            style={{ fontFamily: "Spoqa", fontSize: 20, fontWeight: "700" }}
-          >
-            {meData?.me?.community.communityName}
-          </Text>
+          <Image
+            style={{ flex: 1 }}
+            source={{ uri: meData?.me?.community.communityLogo }}
+            resizeMode="contain"
+          />
         </View>
-      )}
+        <Text style={{ fontFamily: "Spoqa", fontSize: 20, fontWeight: "700" }}>
+          {meData?.me?.community.communityName}
+        </Text>
+      </View>
       {/* 헤더 */}
       <View
         style={{
@@ -306,7 +299,8 @@ export default function CommunityRank({ navigation }) {
           height={windowHeight}
           onPress={feedClickFunction}
           style={{
-            borderColor: feedClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: feedClick ? 2 : 1,
+            borderColor: feedClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>일상</HeaderText>
@@ -316,7 +310,8 @@ export default function CommunityRank({ navigation }) {
           height={windowHeight}
           onPress={poemClickFunction}
           style={{
-            borderColor: poemClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: poemClick ? 2 : 1,
+            borderColor: poemClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>시</HeaderText>
@@ -326,7 +321,8 @@ export default function CommunityRank({ navigation }) {
           height={windowHeight}
           onPress={commentClickFunction}
           style={{
-            borderColor: commentClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: commentClick ? 2 : 1,
+            borderColor: commentClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>댓글</HeaderText>
@@ -336,7 +332,8 @@ export default function CommunityRank({ navigation }) {
           height={windowHeight}
           onPress={likeClickFunction}
           style={{
-            borderColor: likeClick ? colors.mainColor : colors.lightGray,
+            borderBottomWidth: likeClick ? 2 : 1,
+            borderColor: likeClick ? colors.mainColor : "#ECE7E2",
           }}
         >
           <HeaderText>좋아요</HeaderText>
@@ -344,8 +341,6 @@ export default function CommunityRank({ navigation }) {
       </View>
       {/* 순위 리스트 */}
       <FlatList
-        onScrollToTop={() => setScroll(false)}
-        onScrollEndDrag={() => setScroll(true)}
         data={data}
         keyExtractor={(item) => item.id}
         renderItem={RankRow}

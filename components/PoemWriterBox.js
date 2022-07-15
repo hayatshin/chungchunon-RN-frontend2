@@ -131,7 +131,8 @@ export default function PoemWriterBox({
                 display: "flex",
                 flexDirection: "row",
                 width: "45%",
-                justifyContent: "space-between",
+                justifyContent: "flex-end",
+                alignItems: "flex-start",
               }}
             >
               <SmallBtn
@@ -139,6 +140,7 @@ export default function PoemWriterBox({
                 color={"gray"}
                 pressFunction={onPoemEditBtn}
               />
+              <View style={{ width: 15 }}></View>
               <SmallBtn
                 text={"삭제"}
                 color={"main"}

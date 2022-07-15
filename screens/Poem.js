@@ -55,7 +55,7 @@ export default function Poem() {
       <PoemNotiBox />
       <FlatList
         showsVerticalScrollIndicator={false}
-        onEndReachedThreshold={0.1}
+        onEndReachedThreshold={0.3}
         onEndReached={() =>
           fetchMore({
             variables: {

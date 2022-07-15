@@ -8,8 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { colors } from "../colors";
-import Constants from "expo-constants";
-import { FEED_FRAGMENT, ME_FRAGMENT, POEM_FRAGMENT } from "../fragments";
+import { FEED_POEM_FRAGMENT } from "../fragments";
 import ImageSwiper from "../components/ImageSwiper";
 import LikeAndComment from "../components/LikeAndComment";
 import WriterBox from "../components/WriterBox";
@@ -19,24 +18,14 @@ import NotiBox from "../components/NotiBox";
 import PoemLikeAndComment from "../components/PoemLikeAndComment";
 import PoemWriterBox from "../components/PoemWriterBox";
 
-const SEE_CERTAIN_USER_FEED_QUERY = gql`
-  query seeCertainUserFeed($offset: Int!, $id: Int!) {
-    seeCertainUserFeed(offset: $offset, id: $id) {
-      ...FeedFragment
+const SEE_CERTAIN_USER_FEED_POEM = gql`
+  query seeCertainUserFeedPoem($offset: Int!, $id: Int!) {
+    seeCertainUserFeedPoem(offset: $offset, id: $id) {
+      ...FeedPoemFragment
     }
   }
-  ${FEED_FRAGMENT}
+  ${FEED_POEM_FRAGMENT}
 `;
-
-const SEE_CERTAIN_USER_POEM_QUERY = gql`
-  query seeCertainUserPoem($offset: Int!, $id: Int!) {
-    seeCertainUserPoem(offset: $offset, id: $id) {
-      ...PoemFragement
-    }
-  }
-  ${POEM_FRAGMENT}
-`;
-
 export default function FriendFeed({ route }) {
   const userId = route?.params?.writerId;
   const screenFocus = useIsFocused();
@@ -44,50 +33,32 @@ export default function FriendFeed({ route }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const {
-    data: feedData,
-    loading: feedLoading,
-    refetch: feedRefetch,
-    fetchMore: feedFetchmore,
-  } = useQuery(SEE_CERTAIN_USER_FEED_QUERY, {
+    data: fpData,
+    loading: fpLoading,
+    refetch: fpRefetch,
+    fetchMore: fpFetchmore,
+  } = useQuery(SEE_CERTAIN_USER_FEED_POEM, {
     variables: {
       offset: 0,
       id: parseInt(userId),
     },
   });
-  const {
-    data: poemData,
-    loading: poemLoading,
-    refetch: poemRefetch,
-    fetchMore: poemFetchmore,
-  } = useQuery(SEE_CERTAIN_USER_POEM_QUERY, {
-    variables: {
-      offset: 0,
-      id: parseInt(userId),
-    },
-  });
-
   const [dataLoading, setDataLoading] = useState(false);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    feedRefetch();
-    poemRefetch();
+    fpRefetch();
   }, [screenFocus]);
 
   useEffect(() => {
-    if (feedData && poemData) {
-      const feedresult = feedData.seeCertainUserFeed;
-      const poemresult = poemData.seeCertainUserPoem;
-      const combineresult = feedresult.concat(poemresult);
-      if (combineresult) {
-        setData((oldarray) =>
-          [...combineresult].sort(function (a, b) {
-            return b.createdAt - a.createdAt;
-          })
-        );
-      }
+    if (fpData) {
+      setData((oldarray) =>
+        [...fpData.seeCertainUserFeedPoem].sort(function (a, b) {
+          return b.createdAt - a.createdAt;
+        })
+      );
     }
-  }, [feedData, poemData]);
+  }, [fpData]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -97,8 +68,7 @@ export default function FriendFeed({ route }) {
 
   const refresh = async () => {
     setRefreshing(true);
-    await feedRefetch();
-    await poemRefetch();
+    await fpRefetch();
     setRefreshing(false);
   };
 
@@ -153,16 +123,12 @@ export default function FriendFeed({ route }) {
       <InfoNotiBox userId={userId} />
       {dataLoading ? (
         <FlatList
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.3}
           onEndReached={() => {
-            feedFetchmore({
+            fpFetchmore({
               variables: {
-                offset: data.length,
-              },
-            });
-            poemFetchmore({
-              variables: {
-                offset: data.length,
+                id: parseInt(userId),
+                offset: parseInt(data.length),
               },
             });
           }}
@@ -171,7 +137,7 @@ export default function FriendFeed({ route }) {
           keyExtractor={(feed) => feed.id}
           data={data}
           renderItem={({ item }) => {
-            if (item.__typename === "Feed") {
+            if (item.caption !== null) {
               return (
                 <View style={{ width: windowWidth }}>
                   {/* 작성자 */}

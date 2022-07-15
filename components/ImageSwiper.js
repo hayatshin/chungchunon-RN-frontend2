@@ -1,11 +1,13 @@
 import React from "react";
 import AppIntroSlider from "react-native-app-intro-slider";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Image, Dimensions } from "react-native";
+import { View, Image, Dimensions, Pressable } from "react-native";
 import { colors } from "../colors";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ImageSwiper({ photosArray }) {
-  const { width: windowWidth } = Dimensions.get("window");
+  const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
+  const navigation = useNavigation();
 
   const renderPrevButton = () => {
     return (
@@ -64,7 +66,8 @@ export default function ImageSwiper({ photosArray }) {
       renderNextButton={renderNextButton}
       renderItem={({ item }) => {
         return (
-          <View
+          <Pressable
+            onPress={() => navigation.navigate("ImageZoomIn", { photosArray })}
             style={{
               width: windowWidth,
               height: windowWidth,
@@ -76,9 +79,8 @@ export default function ImageSwiper({ photosArray }) {
                 flex: 1,
               }}
               source={{ uri: item }}
-              resizeMode="contain"
             />
-          </View>
+          </Pressable>
         );
       }}
     />

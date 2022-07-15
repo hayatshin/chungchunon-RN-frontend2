@@ -12,6 +12,8 @@ import WritePoem from "../screens/WritePoem";
 import UploadPoem from "../screens/UploadPoem";
 import EditPoem from "../screens/EditPoem";
 import PoemComment from "../screens/PoemComment";
+import EditProfile from "../screens/EditProfile";
+import ImageZoomIn from "../screens/ImageZoomIn";
 
 const Stack = createNativeStackNavigator();
 
@@ -179,6 +181,38 @@ export default function LoggedInNav() {
           },
         }}
         component={PoemComment}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={EditProfile}
+      />
+      <Stack.Screen
+        name="ImageZoomIn"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "black",
+          },
+          headerTintColor: colors.lightMain,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={ImageZoomIn}
       />
     </Stack.Navigator>
   );
