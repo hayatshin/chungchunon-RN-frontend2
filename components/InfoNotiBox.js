@@ -1,6 +1,10 @@
 import { gql, useQuery } from "@apollo/client";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import React, { useState } from "react";
+import {
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { colors } from "../colors";
@@ -48,7 +52,8 @@ const InfoText = styled.Text`
 
 export default function InfoNotiBox({ userId }) {
   const navigation = useNavigation();
-  const { data } = useQuery(SEE_PROFILE_QUERY, {
+  const screenFocus = useIsFocused();
+  const { data, refetch } = useQuery(SEE_PROFILE_QUERY, {
     variables: {
       id: parseInt(userId),
     },
@@ -57,6 +62,11 @@ export default function InfoNotiBox({ userId }) {
   const meCheck = userId === meData?.me?.id;
   const [click, setClick] = useState(false);
   const routename = useRoute().name;
+
+  useEffect(() => {
+    refetch();
+  }, [screenFocus]);
+
   return click ? (
     <TouchableOpacity
       onPress={() => setClick(false)}

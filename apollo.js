@@ -9,7 +9,7 @@ export const isLoggedInVar = makeVar(false);
 export const tokenVar = makeVar("");
 
 const uploadHttpLink = createUploadLink({
-  uri: "http://172.30.1.46:4000/graphql",
+  uri: "http://172.30.1.18:4000/graphql",
 });
 
 export const logUserIn = async (token) => {

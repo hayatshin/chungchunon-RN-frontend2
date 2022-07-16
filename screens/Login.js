@@ -17,7 +17,7 @@ import { gql, useMutation } from "@apollo/client";
 import { TWILLIO_BASE_URL } from "@env";
 import { logUserIn } from "../apollo";
 
-const PRACTICE_BASE_URL = "http://172.30.1.46:4000";
+const PRACTICE_BASE_URL = "http://172.30.1.18:4000";
 
 const LOGIN_MUATION = gql`
   mutation Login($cellphone: String) {
@@ -98,70 +98,75 @@ export default function Login({ navigation }) {
   const sendCode = async () => {
     setPhoneInserted(true);
     setwaitMessage(true);
+
+    goDownY.start();
+    setVeriBox(true);
+    setVerimessage("휴대전화번호가 인증되었습니다.");
+    setDisableConfirm(false);
     // send verfication code to phone number
-    await fetch(`${PRACTICE_BASE_URL}/verify/${phone}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.status === "pending") {
-          setcheckedNumber(phone);
-          setwaitMessage(false);
-        }
-      })
-      .catch((err) => {
-        setPhoneInserted(false);
-        setwaitMessage(false);
-        setphone("");
-        console.log(err);
-        setDisableConfirm(true);
-        goDownY.start();
-        setVeriBox(true);
-        setVerimessage("잘못된 휴대전화번호입니다.");
-        reset();
-        setretry(true);
-      });
+    // await fetch(`${PRACTICE_BASE_URL}/verify/${phone}`, {
+    //   method: "GET",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // })
+    //   .then((res) => res.json())
+    //   .then((res) => {
+    //     if (res.status === "pending") {
+    //       setcheckedNumber(phone);
+    //       setwaitMessage(false);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     setPhoneInserted(false);
+    //     setwaitMessage(false);
+    //     setphone("");
+    //     console.log(err);
+    //     setDisableConfirm(true);
+    //     goDownY.start();
+    //     setVeriBox(true);
+    //     setVerimessage("잘못된 휴대전화번호입니다.");
+    //     reset();
+    //     setretry(true);
+    //   });
   };
 
-  const verifyCode = () => {
-    // Now check if the verfication inserted was the same as
-    // the one sent
-    try {
-      fetch(`${PRACTICE_BASE_URL}/check/${checkedNumber}/${verfication}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.status === "approved") {
-            goDownY.start();
-            setVeriBox(true);
-            setVerimessage("휴대전화번호가 인증되었습니다.");
-            setDisableConfirm(false);
-            // Navigate to another page  once phone is verfied
-          } else {
-            // Handle other error cases like network connection problems
-            setDisableConfirm(true);
-            goDownY.start();
-            setVeriBox(true);
-            setVerimessage("휴대전화번호 인증에 실패했습니다.");
-            reset();
-            setretry(true);
-          }
-        });
-    } catch {
-      setDisableConfirm(true);
-      goDownY.start();
-      setVerimessage("휴대전화번호 인증에 실패했습니다.");
-      reset();
-      setretry(true);
-    }
-  };
+  // const verifyCode = () => {
+  //   // Now check if the verfication inserted was the same as
+  //   // the one sent
+  //   try {
+  //     fetch(`${PRACTICE_BASE_URL}/check/${checkedNumber}/${verfication}`, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     })
+  //       .then((res) => res.json())
+  //       .then((res) => {
+  //         if (res.status === "approved") {
+  //           goDownY.start();
+  //           setVeriBox(true);
+  //           setVerimessage("휴대전화번호가 인증되었습니다.");
+  //           setDisableConfirm(false);
+  //           // Navigate to another page  once phone is verfied
+  //         } else {
+  //           // Handle other error cases like network connection problems
+  //           setDisableConfirm(true);
+  //           goDownY.start();
+  //           setVeriBox(true);
+  //           setVerimessage("휴대전화번호 인증에 실패했습니다.");
+  //           reset();
+  //           setretry(true);
+  //         }
+  //       });
+  //   } catch {
+  //     setDisableConfirm(true);
+  //     goDownY.start();
+  //     setVerimessage("휴대전화번호 인증에 실패했습니다.");
+  //     reset();
+  //     setretry(true);
+  //   }
+  // };
 
   // 인증 메세지 애니메이션
   const animateY = useRef(new Animated.Value(-30)).current;
@@ -286,7 +291,7 @@ export default function Login({ navigation }) {
           }}
         ></TextInput>
         <TouchableOpacity
-          onPress={verifyCode}
+          // onPress={verifyCode}
           disabled={verfication.length === 6 ? false : true}
           style={{
             width: "30%",

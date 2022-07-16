@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useDidMountEffect,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   View,
@@ -169,7 +164,7 @@ export default function EditProfile({ navigation, route }) {
 
   const editComplete = (data) => {
     if (data?.editProfile?.ok) {
-      navigation.navigate("Tabs", { screen: "나" });
+      navigation.goBack();
     }
   };
 
@@ -185,6 +180,7 @@ export default function EditProfile({ navigation, route }) {
       name: `1.jpg`,
       type: "image/jpeg",
     });
+
     editProfileMutation({
       variables: {
         name: nameValue,

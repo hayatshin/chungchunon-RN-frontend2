@@ -238,6 +238,7 @@ export default function Me() {
                     writeTime={item?.createdAt}
                     editTime={item?.updatedAt}
                     feedId={item?.id}
+                    writerId={item?.user?.id}
                   />
                   {/* 이미지 */}
                   {item.photos.length > 0 ? (
