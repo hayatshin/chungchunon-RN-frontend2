@@ -7,12 +7,21 @@ import {
   SafeAreaView,
   ScrollView,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { colors } from "../colors";
 import ImageSwiper from "../components/ImageSwiper";
 import SmallBtn from "../components/SmallBtn";
 import { FEED_FRAGMENT } from "../fragments";
-import { useRoute } from "@react-navigation/native";
+
+const SEE_ALL_FEEDS_QUERY = gql`
+  query seeAllFeeds($offset: Int!) {
+    seeAllFeeds(offset: $offset) {
+      ...FeedFragment
+    }
+  }
+  ${FEED_FRAGMENT}
+`;
 
 const SEE_CERTAIN_FEED_QUERY = gql`
   query seeCertainFeed($id: Int!) {
@@ -36,8 +45,11 @@ export default function EditFeed({ route, navigation }) {
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   const [caption, setCaption] = useState("");
   const [inputClick, setInputClick] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [dataLength, setDataLength] = useState("");
+
   const feedId = route?.params?.feedId;
-  const routename = useRoute().name;
 
   const { data: seeCertainFeedData } = useQuery(SEE_CERTAIN_FEED_QUERY, {
     variables: {
@@ -45,14 +57,28 @@ export default function EditFeed({ route, navigation }) {
     },
   });
 
+  useEffect(() => {
+    if (seeCertainFeedData !== null && seeCertainFeedData !== undefined) {
+      setData((oldArray) => seeCertainFeedData?.seeCertainFeed);
+    }
+  }, [seeCertainFeedData]);
+
+  useEffect(() => {
+    if (Object.keys(data).length !== 0) {
+      setDataLoading(true);
+      setDataLength(data?.photos?.length);
+    }
+  }, [data]);
+
   const onUpdateEdit = (cache, result) => {
+    const cacheFeedId = `Feed:${feedId}`;
+    const cacheFPId = `Feedpoem:${feedId}`;
     const {
       data: {
         editFeed: { ok },
       },
     } = result;
     if (ok) {
-      const cacheFeedId = `Feed:${feedId}`;
       cache.modify({
         id: cacheFeedId,
         fields: {
@@ -61,6 +87,15 @@ export default function EditFeed({ route, navigation }) {
           },
         },
       });
+      cache.modify({
+        id: cacheFPId,
+        fields: {
+          caption(prev) {
+            return caption;
+          },
+        },
+      });
+
       navigation.goBack();
     }
   };
@@ -86,8 +121,7 @@ export default function EditFeed({ route, navigation }) {
       },
     });
   }, []);
-
-  return (
+  return dataLoading ? (
     <SafeAreaView
       style={{
         flex: 1,
@@ -103,7 +137,7 @@ export default function EditFeed({ route, navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {/* 이미지 */}
-        {seeCertainFeedData?.seeCertainFeed?.photos ? (
+        {dataLength !== 0 && dataLength !== "" ? (
           <View style={{ width: windowWidth, height: windowWidth }}>
             <ImageSwiper
               photosArray={seeCertainFeedData?.seeCertainFeed?.photos}
@@ -133,5 +167,17 @@ export default function EditFeed({ route, navigation }) {
         ></TextInput>
       </ScrollView>
     </SafeAreaView>
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white",
+      }}
+    >
+      <ActivityIndicator size={30} color={colors.mainColor} />
+    </View>
   );
 }

@@ -11,11 +11,23 @@ export default function WritePoem({ navigation }) {
   const [captionClick, setCaptionClick] = useState(false);
   const [title, setTitle] = useState("");
   const [titleClick, setTitleClick] = useState(false);
+  const [showNoti, setShowNoti] = useState(false);
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        const pressFunction = () =>
-          navigation.navigate("UploadPoem", { title, caption });
+        const pressFunction = () => {
+          if (title === "" || caption === "") {
+            setShowNoti(true);
+          } else {
+            navigation.navigate("UploadPoem", { title, caption });
+          }
+        };
+
+        if (title !== "" && caption !== "") {
+          setShowNoti(false);
+        }
+
         return (
           <View
             style={{
@@ -24,7 +36,7 @@ export default function WritePoem({ navigation }) {
               alignItems: "center",
             }}
           >
-            {title === "" || caption === "" ? (
+            {showNoti ? (
               <Text
                 style={{
                   color: "black",
@@ -41,13 +53,13 @@ export default function WritePoem({ navigation }) {
               pressFunction={pressFunction}
               text={"확인"}
               color={"main"}
-              disabled={title === "" || caption === "" ? true : false}
             />
           </View>
         );
       },
     });
-  }, [navigation, caption]);
+  }, [navigation, title, caption, showNoti]);
+
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   return (
     <KeyboardAwareScrollView
@@ -76,7 +88,9 @@ export default function WritePoem({ navigation }) {
           onChangeText={(text) => setTitle(text)}
           onSubmitEditing={(text) => setTitle(text)}
           style={{
-            height: 80,
+            marginTop: 10,
+            // height: 80,
+            flex: 1,
             width: "85%",
             backgroundColor: "white",
             borderRadius: 5,
@@ -100,7 +114,8 @@ export default function WritePoem({ navigation }) {
           placeholder="시 쓰기"
           placeholderTextColor={colors.lightGray}
           style={{
-            height: 500,
+            // height: 500,
+            flex: 8,
             width: "85%",
             backgroundColor: "white",
             borderRadius: 5,

@@ -10,6 +10,7 @@ const ME_QUERY = gql`
       id
       avatar
       age
+      master
     }
   }
 `;
@@ -19,7 +20,7 @@ export default function NotiBox() {
   const [underfiftyclick, setUnderfiftyclick] = useState(false);
   const navigation = useNavigation();
   const FiftyValidation = () => {
-    data?.me?.age >= 50
+    data?.me?.age >= 50 || data.me.master
       ? navigation.navigate("WriteFeed")
       : setUnderfiftyclick(true);
   };

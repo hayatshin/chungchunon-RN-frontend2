@@ -1,4 +1,4 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import {
   useIsFocused,
   useNavigation,
@@ -38,7 +38,7 @@ const InfoBox = styled.View`
 
 const InfoHeader = styled.Text`
   font-family: "Spoqa";
-  font-size: 17px;
+  font-size: 16px;
   color: black;
   font-weight: 700;
   margin-right: 10px;
@@ -46,26 +46,29 @@ const InfoHeader = styled.Text`
 
 const InfoText = styled.Text`
   font-family: "Spoqa";
-  font-size: 17px;
+  font-size: 16px;
   color: black;
 `;
 
 export default function InfoNotiBox({ userId }) {
+  const { data: meData } = useQuery(Me_QUERY);
+  const notiUserId = userId ? userId : meData?.me?.id;
   const navigation = useNavigation();
   const screenFocus = useIsFocused();
-  const { data, refetch } = useQuery(SEE_PROFILE_QUERY, {
-    variables: {
-      id: parseInt(userId),
-    },
-  });
-  const { data: meData } = useQuery(Me_QUERY);
-  const meCheck = userId === meData?.me?.id;
+  const [seeProfileQuery, { data, refetch }] = useLazyQuery(SEE_PROFILE_QUERY);
+  const meCheck = notiUserId === meData?.me?.id;
   const [click, setClick] = useState(false);
   const routename = useRoute().name;
 
   useEffect(() => {
-    refetch();
-  }, [screenFocus]);
+    if (notiUserId) {
+      seeProfileQuery({
+        variables: {
+          id: parseInt(notiUserId),
+        },
+      });
+    }
+  }, [notiUserId]);
 
   return click ? (
     <TouchableOpacity
@@ -98,23 +101,30 @@ export default function InfoNotiBox({ userId }) {
     <TouchableOpacity
       onPress={() => setClick(true)}
       style={{
-        width: "100%",
+        alignSelf: "center",
+        width: "95%",
+        paddingHorizontal: 15,
+        paddingVertical: 15,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "flex-start",
         marginTop: routename === "나" ? 20 : 0,
+        backgroundColor: "white",
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: colors.lightGray,
+        marginBottom: 10,
       }}
     >
       {/* 자기 정보 */}
       <View
         style={{
-          width: "100%",
           display: "flex",
           flexDirection: "row",
-          justifyContent: "flex-start",
           alignItems: "center",
-          paddingHorizontal: 15,
+          justifyContent: "center",
+          marginBottom: 5,
         }}
       >
         {/* 로그인 유저 사진 */}
@@ -125,16 +135,17 @@ export default function InfoNotiBox({ userId }) {
             })
           }
           style={{
-            width: "20%",
+            width: "25%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            justifySelf: "flex-start",
           }}
         >
           <Image
             style={{
-              width: 60,
-              height: 60,
+              width: 80,
+              height: 80,
               borderRadius: 30,
             }}
             source={{ uri: data?.seeProfile?.avatar }}
@@ -146,8 +157,9 @@ export default function InfoNotiBox({ userId }) {
             width: "55%",
             display: "flex",
             borderRadius: 10,
-            paddingBottom: 10,
-            justifyContent: "flex-start",
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 10,
           }}
         >
           <InfoBox>
@@ -159,33 +171,15 @@ export default function InfoNotiBox({ userId }) {
             <InfoText>{data?.seeProfile?.region}</InfoText>
           </InfoBox>
           <InfoBox>
-            <InfoHeader>소속 기관</InfoHeader>
+            <InfoHeader>기관</InfoHeader>
             <InfoText>{data?.seeProfile?.community?.communityName}</InfoText>
           </InfoBox>
-          <View
-            style={{
-              width: "80%",
-              display: "flex",
-              alignItems: "center",
-              borderRadius: 5,
-              padding: 2,
-              marginTop: 7,
-            }}
-          >
-            {data?.seeProfile?.bio ? (
-              <Text
-                style={{ fontFamily: "Spoqa", fontWeight: "700", fontSize: 20 }}
-              >
-                " {data?.seeProfile?.bio} "
-              </Text>
-            ) : null}
-          </View>
         </View>
         {/* 수정 버튼 */}
         {meCheck ? (
           <TouchableOpacity
             style={{
-              width: "25%",
+              width: "20%",
               height: "100%",
               display: "flex",
               alignItems: "flex-end",
@@ -198,7 +192,31 @@ export default function InfoNotiBox({ userId }) {
           </TouchableOpacity>
         ) : null}
       </View>
-      {/* 경계 */}
+      {data?.seeProfile?.bio ? (
+        <View
+          style={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "white",
+            borderRadius: 20,
+            marginVertical: 5,
+            // backgroundColor: colors.lightMain,
+            paddingVertical: 3,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "Spoqa",
+              fontWeight: "700",
+              fontSize: 17,
+            }}
+          >
+            {data?.seeProfile?.bio}
+          </Text>
+        </View>
+      ) : null}
+      {/* 경계
       <View
         style={{
           width: "100%",
@@ -206,7 +224,7 @@ export default function InfoNotiBox({ userId }) {
           backgroundColor: colors.lightGray,
           marginTop: 5,
         }}
-      ></View>
+      ></View> */}
     </TouchableOpacity>
   );
 }

@@ -48,15 +48,20 @@ export const ME_FRAGMENT = gql`
     avatar
     region
     bio
+    master
     community {
       id
       communityName
       communityLogo
     }
-    directFeedNumber
-    directCommentNumber
-    directLikeNumber
-    directPoemNumber
+    thisweekLikeNumber
+    thisweekCommentNumber
+    thisweekFeedNumber
+    thisweekPoemNumber
+    lastweekLikeNumber
+    lastweekCommentNumber
+    lastweekFeedNumber
+    lastweekPoemNumber
   }
 `;
 

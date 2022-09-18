@@ -9,13 +9,12 @@ export const isLoggedInVar = makeVar(false);
 export const tokenVar = makeVar("");
 
 const uploadHttpLink = createUploadLink({
-  uri: "https://chungchunon-backend.herokuapp.com/graphql",
+  uri: "https://chungchunon-rn-backend.herokuapp.com/graphql",
 });
 
 export const logUserIn = async (token) => {
   try {
     await AsyncStorage.setItem("token", JSON.stringify(token));
-    isLoggedInVar(true);
     tokenVar(token);
   } catch (e) {
     console.error(e);
@@ -51,6 +50,7 @@ export const cache = new InMemoryCache({
         seeCertainUserFeed: offsetLimitPagination(),
         seeCertainUserPoem: offsetLimitPagination(),
         seeCertainUserFeedPoem: offsetLimitPagination(),
+        seeMeFeedPoem: offsetLimitPagination(),
       },
     },
   },

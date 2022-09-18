@@ -3,21 +3,32 @@ import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { View, Dimensions, TextInput, Image, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { TouchableWithoutFeedback } from "react-native-web";
 import { colors } from "../colors";
 import SmallBtn from "../components/SmallBtn";
 
 export default function WriteFeed({ navigation }) {
   const [caption, setCaption] = useState("");
   const [inputClick, setInputClick] = useState(false);
+  const [showNoti, setShowNoti] = useState(false);
 
   useEffect(() => {
+    const pressFunction = () => {
+      if (caption === "") {
+        setShowNoti(true);
+      } else {
+        navigation.navigate("UploadNav", {
+          screen: "UploadForm",
+          params: { caption, selectPhotos: [] },
+        });
+      }
+    };
+
+    if (caption !== "") {
+      setShowNoti(false);
+    }
     navigation.setOptions({
       headerRight: () => {
-        const pressFunction = () =>
-          navigation.navigate("UploadNav", {
-            screen: "UploadForm",
-            params: { caption },
-          });
         return (
           <View
             style={{
@@ -26,7 +37,7 @@ export default function WriteFeed({ navigation }) {
               alignItems: "center",
             }}
           >
-            {caption === "" ? (
+            {showNoti ? (
               <Text
                 style={{
                   color: "black",
@@ -43,13 +54,14 @@ export default function WriteFeed({ navigation }) {
               pressFunction={pressFunction}
               text={"확인"}
               color={"main"}
-              disabled={caption === "" ? true : false}
+              // disabled={caption === "" ? true : false}
             />
           </View>
         );
       },
     });
-  }, [navigation, caption]);
+  }, [caption, showNoti]);
+
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   return (
     <KeyboardAwareScrollView
@@ -86,7 +98,6 @@ export default function WriteFeed({ navigation }) {
           <SmallBtn
             text={"사진 올리기"}
             color={"black"}
-            disabled={caption === "" ? true : false}
             pressFunction={() =>
               navigation.navigate("UploadNav", {
                 screen: "SelectPhoto",
@@ -104,6 +115,7 @@ export default function WriteFeed({ navigation }) {
           onSubmitEditing={(text) => setCaption(text)}
           placeholder="글쓰기..."
           placeholderTextColor={colors.lightGray}
+          multiline={true}
           style={{
             flex: 4,
             width: "85%",
@@ -117,7 +129,6 @@ export default function WriteFeed({ navigation }) {
             textAlignVertical: "top",
             marginBottom: 50,
           }}
-          multiline={true}
         ></TextInput>
       </View>
     </KeyboardAwareScrollView>

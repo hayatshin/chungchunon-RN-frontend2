@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, Dimensions, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { koreaDate } from "../koreaDate";
@@ -16,15 +16,6 @@ const ME_QUERY = gql`
   }
 `;
 
-const DELETE_POEM_MUTATION = gql`
-  mutation deletePoem($id: Int!) {
-    deletePoem(id: $id) {
-      ok
-      error
-    }
-  }
-`;
-
 export default function PoemWriterBox({
   feedId,
   writerAvatar,
@@ -35,45 +26,21 @@ export default function PoemWriterBox({
   const navigation = useNavigation();
   const routename = useRoute().name;
 
-  const { width: windowWidth } = Dimensions.get("window");
+  const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
   const { data: meData } = useQuery(ME_QUERY);
 
   // delete poem
-
-  const onUpdatePoemDelete = (cache, result) => {
-    const {
-      data: {
-        deletePoem: { ok },
-      },
-    } = result;
-    console.log(ok);
-    if (ok) {
-      const cachePoemId = `Poem:${feedId}`;
-      cache.evict({
-        id: cachePoemId,
-      });
-    }
-    if (routename === "일상") {
-      navigation.navigate("Tabs", { screen: "일상" });
-    } else if (routename === "나") {
-      navigation.navigate("Tabs", { screen: "나" });
-    } else if (routename === "FriendFeed") {
-      navigation.navigate("FriendFeed");
-    } else if (routename === "시") {
-      navigation.navigate("Tabs", { screen: "시" });
-    }
-  };
-
-  const [deletePoemMutation] = useMutation(DELETE_POEM_MUTATION, {
-    variables: { id: parseInt(feedId) },
-    update: onUpdatePoemDelete,
-  });
 
   const completeCreatedTime = koreaDate(writeTime);
 
   const onPoemEditBtn = () => {
     navigation.navigate("EditPoem", { poemId: feedId });
   };
+
+  const deleteClick = () => {
+    navigation.navigate("DeleteFeed", { poemId: feedId });
+  };
+
   return (
     <View
       style={{
@@ -105,14 +72,12 @@ export default function PoemWriterBox({
             flexDirection: "row",
             justifyContent: "space-between",
             width: windowWidth - 105,
-            marginBottom: 15,
+            marginBottom: 5,
           }}
         >
           {/* 이름 */}
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("FriendFeed", { userId: writerId })
-            }
+            onPress={() => navigation.navigate("FriendFeed", { writerId })}
           >
             <Text
               style={{
@@ -144,7 +109,7 @@ export default function PoemWriterBox({
               <SmallBtn
                 text={"삭제"}
                 color={"main"}
-                pressFunction={deletePoemMutation}
+                pressFunction={deleteClick}
               />
             </View>
           ) : null}
@@ -158,7 +123,7 @@ export default function PoemWriterBox({
             fontWeight: "600",
           }}
         >
-          {completeCreatedTime} 글 작성
+          {completeCreatedTime}
         </Text>
       </View>
     </View>

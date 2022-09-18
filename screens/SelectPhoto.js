@@ -28,6 +28,9 @@ export default function SelectPhoto({ navigation, route }) {
 
   useEffect(() => {
     getPermission();
+  }, []);
+
+  useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
         return (
@@ -56,7 +59,7 @@ export default function SelectPhoto({ navigation, route }) {
         );
       },
     });
-  }, [caption, selectPhotos]);
+  }, [selectPhotos]);
 
   const firstGetPhotos = async () => {
     const { assets, endCursor, hasNextPage } =
@@ -192,8 +195,8 @@ export default function SelectPhoto({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 10 }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
+      <View style={{ flex: 10, backgroundColor: "white" }}>
         <FlatList
           contentContainerStyle={{ backgroundColor: "white" }}
           numColumns={numColumns}
@@ -213,7 +216,7 @@ export default function SelectPhoto({ navigation, route }) {
         }}
       >
         {/* 이전 페이지 버튼 */}
-        {endCursor === "30" ? (
+        {parseInt(endCursor) <= parseInt(30) ? (
           <View
             style={{
               display: "flex",

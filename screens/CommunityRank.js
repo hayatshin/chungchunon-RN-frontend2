@@ -11,6 +11,7 @@ import {
 import moment from "moment";
 import styled from "styled-components/native";
 import { colors } from "../colors";
+import { Ionicons } from "@expo/vector-icons";
 import { gql, useQuery } from "@apollo/client";
 import { ME_FRAGMENT } from "../fragments";
 import { useIsFocused } from "@react-navigation/native";
@@ -30,10 +31,12 @@ const SEE_COMMUNNITY_USERS_QUERY = gql`
       id
       name
       avatar
+      thisweekPointNumber
       thisweekLikeNumber
       thisweekCommentNumber
       thisweekFeedNumber
       thisweekPoemNumber
+      lastweekPointNumber
       lastweekLikeNumber
       lastweekCommentNumber
       lastweekFeedNumber
@@ -54,7 +57,7 @@ const BodyText = styled.Text`
 `;
 
 const MenuBox = styled.TouchableOpacity`
-  width: ${(props) => props.windowWidth / 4}px;
+  width: ${(props) => props.windowWidth / 5}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -84,7 +87,8 @@ export default function CommunityRank({ navigation }) {
   });
 
   const [thisweekClick, setThisweekClick] = useState(true);
-  const [feedClick, setFeedClick] = useState(true);
+  const [pointClick, setPointClick] = useState(true);
+  const [feedClick, setFeedClick] = useState(false);
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
   const [poemClick, setPoemClick] = useState(false);
@@ -104,7 +108,25 @@ export default function CommunityRank({ navigation }) {
     const result = [];
     let index = 1;
     if (communitydata !== undefined) {
-      if (thisweekClick && feedClick) {
+      if (thisweekClick && pointClick) {
+        const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
+          return b.thisweekPointNumber - a.thisweekPointNumber;
+        });
+        for (let n = 0; n < sort.length; ++n) {
+          const current = sort[n];
+          result.push({
+            ...current,
+            index,
+          });
+          // See if the next one (if any) matches this one
+          if (
+            sort[n + 1]?.thisweekPointNumber !== current.thisweekPointNumber
+          ) {
+            ++index;
+          }
+        }
+        setData(result);
+      } else if (thisweekClick && feedClick) {
         const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
           return b.thisweekFeedNumber - a.thisweekFeedNumber;
         });
@@ -166,6 +188,24 @@ export default function CommunityRank({ navigation }) {
           });
           // See if the next one (if any) matches this one
           if (sort[n + 1]?.thisweekPoemNumber !== current.thisweekPoemNumber) {
+            ++index;
+          }
+        }
+        setData(result);
+      } else if (!thisweekClick && pointClick) {
+        const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
+          return b.lastweekPointNumber - a.lastweekPointNumber;
+        });
+        for (let n = 0; n < sort.length; ++n) {
+          const current = sort[n];
+          result.push({
+            ...current,
+            index,
+          });
+          // See if the next one (if any) matches this one
+          if (
+            sort[n + 1]?.lastweekPointNumber !== current.lastweekPointNumber
+          ) {
             ++index;
           }
         }
@@ -240,6 +280,7 @@ export default function CommunityRank({ navigation }) {
     }
   }, [
     communitydata,
+    pointClick,
     feedClick,
     commentClick,
     likeClick,
@@ -259,7 +300,15 @@ export default function CommunityRank({ navigation }) {
     setMyrankOrder(myOrder);
   }, [data]);
 
+  const pointClickFunction = () => {
+    setPointClick(true);
+    setFeedClick(false);
+    setCommentClick(false);
+    setLikeClick(false);
+    setPoemClick(false);
+  };
   const feedClickFunction = () => {
+    setPointClick(false);
     setFeedClick(true);
     setCommentClick(false);
     setLikeClick(false);
@@ -267,6 +316,7 @@ export default function CommunityRank({ navigation }) {
   };
 
   const commentClickFunction = () => {
+    setPointClick(false);
     setFeedClick(false);
     setCommentClick(true);
     setLikeClick(false);
@@ -274,6 +324,7 @@ export default function CommunityRank({ navigation }) {
   };
 
   const likeClickFunction = () => {
+    setPointClick(false);
     setFeedClick(false);
     setCommentClick(false);
     setLikeClick(true);
@@ -281,6 +332,7 @@ export default function CommunityRank({ navigation }) {
   };
 
   const poemClickFunction = () => {
+    setPointClick(false);
     setFeedClick(false);
     setCommentClick(false);
     setLikeClick(false);
@@ -331,7 +383,9 @@ export default function CommunityRank({ navigation }) {
           />
           <HeaderText>{item.name}</HeaderText>
         </View>
-        {thisweekClick && feedClick ? (
+        {thisweekClick && pointClick ? (
+          <BodyText>{item.thisweekPointNumber || 0} 개</BodyText>
+        ) : thisweekClick && feedClick ? (
           <BodyText>{item.thisweekFeedNumber || 0} 개</BodyText>
         ) : thisweekClick && commentClick ? (
           <BodyText>{item.thisweekCommentNumber || 0} 개</BodyText>
@@ -339,6 +393,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{item.thisweekLikeNumber || 0} 개</BodyText>
         ) : thisweekClick && poemClick ? (
           <BodyText>{item.thisweekPoemNumber || 0} 개</BodyText>
+        ) : !thisweekClick && pointClick ? (
+          <BodyText>{item.lastweekPointNumber || 0} 개</BodyText>
         ) : !thisweekClick && feedClick ? (
           <BodyText>{item.lastweekFeedNumber || 0} 개</BodyText>
         ) : !thisweekClick && commentClick ? (
@@ -476,6 +532,31 @@ export default function CommunityRank({ navigation }) {
         <MenuBox
           windowWidth={windowWidth}
           height={windowHeight}
+          onPress={pointClickFunction}
+          style={{
+            borderBottomWidth: pointClick ? 2 : 1,
+            borderColor: pointClick ? colors.mainColor : "#ECE7E2",
+          }}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Ionicons
+              name="trophy-sharp"
+              size={20}
+              color={"#FACF43"}
+              style={{ fontWeight: "700" }}
+            />
+            <HeaderText style={{ marginLeft: 5 }}>점수</HeaderText>
+          </View>
+        </MenuBox>
+        <MenuBox
+          windowWidth={windowWidth}
+          height={windowHeight}
           onPress={feedClickFunction}
           style={{
             borderBottomWidth: feedClick ? 2 : 1,
@@ -564,7 +645,9 @@ export default function CommunityRank({ navigation }) {
           />
           <HeaderText>{meData?.me?.name}</HeaderText>
         </View>
-        {thisweekClick && feedClick ? (
+        {thisweekClick && pointClick ? (
+          <BodyText>{meData?.me?.thisweekPointNumber || 0} 개</BodyText>
+        ) : thisweekClick && feedClick ? (
           <BodyText>{meData?.me?.thisweekFeedNumber || 0} 개</BodyText>
         ) : thisweekClick && commentClick ? (
           <BodyText>{meData?.me?.thisweekCommentNumber || 0} 개</BodyText>
@@ -572,6 +655,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{meData?.me?.thisweekLikeNumber || 0} 개</BodyText>
         ) : thisweekClick && poemClick ? (
           <BodyText>{meData?.me?.thisweekPoemNumber || 0} 개</BodyText>
+        ) : !thisweekClick && pointClick ? (
+          <BodyText>{meData?.me?.lastweekPointNumber || 0} 개</BodyText>
         ) : !thisweekClick && feedClick ? (
           <BodyText>{meData?.me?.lastweekFeedNumber || 0} 개</BodyText>
         ) : !thisweekClick && commentClick ? (

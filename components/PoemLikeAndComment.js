@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { gql, useMutation } from "@apollo/client";
 
 const TOGGLE_LIKE_MUTATION = gql`
@@ -20,11 +20,17 @@ export default function PoemLikeAndComment({
   commentNumber,
   poemId,
 }) {
+  const screenFocus = useIsFocused();
   const navigation = useNavigation();
   const [screenLiked, setScreenLiked] = useState(isLiked);
   const [screenLikeNumber, setScreenLikeNumber] = useState(likeNumber);
+  const [screencommentNumber, setScreenCommentNubmer] = useState(commentNumber);
 
-  // toggleLike
+  useEffect(() => {
+    setScreenLiked(isLiked);
+    setScreenLikeNumber(likeNumber);
+    setScreenCommentNubmer(commentNumber);
+  }, [screenFocus]);
 
   const updateToggleLike = async (cache, result) => {
     const {
@@ -33,20 +39,38 @@ export default function PoemLikeAndComment({
       },
     } = result;
     if (ok) {
+      setScreenLiked(!screenLiked);
+      if (screenLiked) {
+        setScreenLikeNumber(parseInt(screenLikeNumber) - 1);
+      } else {
+        setScreenLikeNumber(parseInt(screenLikeNumber) + 1);
+      }
       const cachePoemId = `Poem:${poemId}`;
+      const cacheFpId = `Feedpoem:${poemId}`;
       await cache.modify({
         id: cachePoemId,
         fields: {
           isLiked(prev) {
-            setScreenLiked(!screenLiked);
             return !prev;
           },
           poemLikeNumber(prev) {
             if (screenLiked) {
-              setScreenLikeNumber(parseInt(screenLikeNumber) - 1);
               return prev - 1;
             }
-            setScreenLikeNumber(parseInt(screenLikeNumber) + 1);
+            return prev + 1;
+          },
+        },
+      });
+      cache.modify({
+        id: cacheFpId,
+        fields: {
+          isLiked(prev) {
+            return !prev;
+          },
+          poemLikeNumber(prev) {
+            if (screenLiked) {
+              return prev - 1;
+            }
             return prev + 1;
           },
         },
@@ -123,7 +147,7 @@ export default function PoemLikeAndComment({
             fontWeight: "700",
           }}
         >
-          댓글 {commentNumber}개 모두 보기
+          댓글 {screencommentNumber}개 보기
         </Text>
       </TouchableOpacity>
     </View>

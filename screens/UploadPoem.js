@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import ImageSwiper from "../components/ImageSwiper";
 import SmallBtn from "../components/SmallBtn";
 import { ReactNativeFile } from "apollo-upload-client";
 import { colors } from "../colors";
 import { ME_FRAGMENT } from "../fragments";
+import { feedAddVar } from "../apollo";
 
 const ME_QUERY = gql`
   query me {
@@ -38,17 +40,23 @@ export default function UploadPoem({ route, navigation }) {
   const poemCaption = route?.params?.caption;
 
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
+  const [uploadWait, setUploadwait] = useState(false);
 
   const updateUploadPoem = async (cache, result) => {
     const {
       data: { createPoem },
     } = result;
+    const certainPoemFragment = { ...createPoem };
+    certainPoemFragment.__typename = "Feedpoem";
     if (createPoem.id) {
       await cache.modify({
         id: "ROOT_QUERY",
         fields: {
           seeAllPoems(prev) {
             return [createPoem, ...prev];
+          },
+          seeMeFeedPoem(prev) {
+            return [certainPoemFragment, ...prev];
           },
         },
       });
@@ -62,6 +70,7 @@ export default function UploadPoem({ route, navigation }) {
   });
 
   const onUploadPress = () => {
+    setUploadwait(true);
     uploadPoemMutation({
       variables: {
         poemTitle,
@@ -73,7 +82,9 @@ export default function UploadPoem({ route, navigation }) {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        return (
+        return uploadWait ? (
+          <ActivityIndicator color={colors.mainColor} size={30} />
+        ) : (
           <SmallBtn
             text={"확인"}
             color={"main"}
@@ -82,7 +93,7 @@ export default function UploadPoem({ route, navigation }) {
         );
       },
     });
-  }, []);
+  }, [uploadWait]);
 
   return (
     <View
@@ -101,21 +112,21 @@ export default function UploadPoem({ route, navigation }) {
         >
           <View
             style={{
-              width: windowWidth * 0.8,
+              width: windowWidth * 0.9,
               paddingVertical: 20,
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: colors.brown,
-              borderRadius: 5,
+              backgroundColor: "#C69978",
+              borderRadius: 2,
               marginTop: 10,
               marginBottom: 30,
             }}
           >
             <View
               style={{
-                width: windowWidth * 0.7,
-                backgroundColor: colors.ivory,
-                borderRadius: 7,
+                width: windowWidth * 0.8,
+                backgroundColor: "#FFFEF2",
+                borderRadius: 4,
                 paddingHorizontal: 20,
                 paddingVertical: 30,
               }}

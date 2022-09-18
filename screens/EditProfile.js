@@ -96,6 +96,7 @@ export default function EditProfile({ navigation, route }) {
     SEE_ALL_COMMUNITIES_QUERY
   );
 
+  const [loading, setLoading] = useState(false);
   const [nameValue, setNameValue] = useState(meData?.me?.name);
   const [regionOpen, setRegionOpen] = useState(false);
   const [regionValue, setRegionValue] = useState(meData?.me?.region);
@@ -175,6 +176,7 @@ export default function EditProfile({ navigation, route }) {
     }
   );
   const fillOutBtn = () => {
+    setLoading(true);
     const avatarModified = new ReactNativeFile({
       uri: avatarValue,
       name: `1.jpg`,
@@ -347,7 +349,11 @@ export default function EditProfile({ navigation, route }) {
       <View style={{ height: 20 }} />
 
       <TouchableOpacity disabled={disableConfirm} onPress={fillOutBtn}>
-        <ConfirmBtn text={"프로필 수정 완료"} disable={disableConfirm} />
+        {loading ? (
+          <ActivityIndicator color={colors.mainColor} size={30} />
+        ) : (
+          <ConfirmBtn text={"프로필 수정 완료"} disable={disableConfirm} />
+        )}
       </TouchableOpacity>
       <View style={{ height: 40 }} />
     </SafeAreaView>

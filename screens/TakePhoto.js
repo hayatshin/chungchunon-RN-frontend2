@@ -65,13 +65,22 @@ export default function TakePhoto({ navigation, route }) {
   }, [takenPhoto]);
 
   const getPermissions = async () => {
-    const { granted } = await Camera.requestCameraPermissionsAsync();
-    setPermission(granted);
+    async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setPermission(status === "granted");
+    };
   };
 
   useEffect(() => {
     getPermissions();
   }, []);
+
+  if (permission === null) {
+    return <View />;
+  }
+  if (permission === false) {
+    return <Text>No access to camera</Text>;
+  }
 
   const onCameraSwitch = () => {
     if (cameraType === Camera.Constants.Type.front) {

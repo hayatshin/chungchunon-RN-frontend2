@@ -14,7 +14,11 @@ import LoggedoutNav from "./navigators/LoggedOutNav";
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const isLoggedIn = useReactiveVar(isLoggedInVar);
+  const tokenState = useReactiveVar(tokenVar);
+
+  useEffect(() => {
+    console.log("tokenState change", tokenState);
+  }, [tokenState]);
 
   useEffect(() => {
     async function prepare() {
@@ -28,7 +32,7 @@ export default function App() {
         ];
         const fontPromises = fontsToLoad.map((font) => Font.loadAsync(font));
         const imagesToLoad = [
-          require("./assets/images/ch-logo.gif"),
+          require("./assets/images/2_appIcon.png"),
           require("./assets/images/kakao_login.png"),
         ];
         const imagePromises = imagesToLoad.map((image) =>
@@ -41,6 +45,7 @@ export default function App() {
           }
         );
         const token = await AsyncStorage.getItem("token");
+
         if (token) {
           isLoggedInVar(true);
           tokenVar(token);
@@ -77,7 +82,7 @@ export default function App() {
     <ApolloProvider client={client}>
       <NavigationContainer>
         <View onLayout={onLayoutRootView}></View>
-        {isLoggedIn ? <LoggedInNav /> : <LoggedoutNav />}
+        {tokenState !== "" ? <LoggedInNav /> : <LoggedoutNav />}
       </NavigationContainer>
     </ApolloProvider>
   );

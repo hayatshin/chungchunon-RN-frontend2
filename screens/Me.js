@@ -1,11 +1,12 @@
-import { gql, useQuery } from "@apollo/client";
-import React, { useEffect, useState } from "react";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
   Dimensions,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { colors } from "../colors";
 import Constants from "expo-constants";
@@ -27,46 +28,42 @@ const Me_QUERY = gql`
   ${ME_FRAGMENT}
 `;
 
-const SEE_CERTAIN_USER_FEED_POEM = gql`
-  query seeCertainUserFeedPoem($offset: Int!, $id: Int!) {
-    seeCertainUserFeedPoem(offset: $offset, id: $id) {
+const SEE_ME_FEED_POEM_QUERY = gql`
+  query seeMeFeedPoem($offset: Int!) {
+    seeMeFeedPoem(offset: $offset) {
       ...FeedPoemFragment
     }
   }
   ${FEED_POEM_FRAGMENT}
 `;
 
-export default function Me() {
+export default function Me({ navigation }) {
   const screenFocus = useIsFocused();
-
   const { width: windowWidth } = Dimensions.get("window");
   const [refreshing, setRefreshing] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [seemore, setSeemore] = useState(false);
+
   // meQuery
   const { data: meData } = useQuery(Me_QUERY);
-  // seeCertainUserFeedPoem
+
+  //seeMeFeedPoemQuery
   const {
     data: fpData,
     loading: fpLoading,
     refetch: fpRefetch,
-    fetchMore: fpFetchmore,
-  } = useQuery(SEE_CERTAIN_USER_FEED_POEM, {
+    fetchMore: fpFetchMore,
+  } = useQuery(SEE_ME_FEED_POEM_QUERY, {
     variables: {
       offset: 0,
-      id: parseInt(meData?.me?.id),
     },
   });
 
-  const [dataLoading, setDataLoading] = useState(false);
-  const [data, setData] = useState([]);
-
   useEffect(() => {
-    fpRefetch();
-  }, [screenFocus]);
-
-  useEffect(() => {
-    if (fpData) {
+    if (fpData !== null && fpData !== undefined) {
       setData((oldarray) =>
-        [...fpData.seeCertainUserFeedPoem].sort(function (a, b) {
+        [...fpData.seeMeFeedPoem].sort(function (a, b) {
           return b.createdAt - a.createdAt;
         })
       );
@@ -74,7 +71,12 @@ export default function Me() {
   }, [fpData]);
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (
+      data !== null &&
+      data !== undefined &&
+      meData !== null &&
+      meData !== undefined
+    ) {
       setDataLoading(true);
     }
   }, [data, meData]);
@@ -85,124 +87,6 @@ export default function Me() {
     setRefreshing(false);
   };
 
-  // const eachFeed = ({ item }) => {
-  //   return (
-  //     <View style={{ width: windowWidth }}>
-  //       {/* 작성자 */}
-  //       <WriterBox
-  //         writerAvatar={item?.user?.avatar}
-  //         writerName={item?.user?.name}
-  //         writeTime={item?.createdAt}
-  //         editTime={item?.updatedAt}
-  //         feedId={item?.id}
-  //       />
-  //       {/* 이미지 */}
-  //       {feed.photos.length > 0 ? (
-  //         <ImageSwiper photosArray={item?.photos} />
-  //       ) : null}
-  //       <View style={{ width: windowWidth, padding: 15 }}>
-  //         {/* 글 */}
-  //         <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
-  //           {item?.caption}
-  //         </Text>
-  //         {/* 좋아요 와 댓글 */}
-  //         <LikeAndComment
-  //           likeNumber={item?.likeNumber}
-  //           commentNumber={item?.commentNumber}
-  //           feedId={item?.id}
-  //           isLiked={item?.isLiked}
-  //         />
-  //       </View>
-
-  //       {/* 경계 */}
-  //       <View
-  //         style={{
-  //           height: 13,
-  //           width: "100%",
-  //         }}
-  //       ></View>
-  //     </View>
-  //   );
-  // };
-
-  // const eachPoem = ({ item }) => {
-  //   return (
-  //     <View
-  //       style={{
-  //         width: windowWidth,
-  //         display: "flex",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //       }}
-  //     >
-  //       <PoemWriterBox
-  //         writerAvatar={item?.user?.avatar}
-  //         writerName={item?.user?.name}
-  //         writeTime={item?.createdAt}
-  //         editTime={item?.updatedAt}
-  //         feedId={item?.id}
-  //         writerId={item?.user?.id}
-  //       />
-  //       {/* 시 박스 */}
-  //       <View
-  //         style={{
-  //           width: windowWidth * 0.8,
-  //           paddingVertical: 20,
-  //           justifyContent: "center",
-  //           alignItems: "center",
-  //           backgroundColor: colors.brown,
-  //           borderRadius: 5,
-  //           marginTop: 10,
-  //         }}
-  //       >
-  //         <View
-  //           style={{
-  //             width: windowWidth * 0.7,
-  //             backgroundColor: colors.ivory,
-  //             borderRadius: 7,
-  //             paddingHorizontal: 20,
-  //             paddingVertical: 30,
-  //           }}
-  //         >
-  //           <Text
-  //             style={{
-  //               fontFamily: "Spoqa",
-  //               fontSize: 20,
-  //               fontWeight: "700",
-  //               marginBottom: 10,
-  //               textAlign: "center",
-  //             }}
-  //           >
-  //             {item?.poemTitle}
-  //           </Text>
-  //           <Text
-  //             style={{
-  //               fontFamily: "Spoqa",
-  //               fontSize: 17,
-  //               fontWeight: "700",
-  //               textAlign: "right",
-  //               marginBottom: 20,
-  //             }}
-  //           >
-  //             {item?.user?.name}
-  //           </Text>
-  //           <Text style={{ fontFamily: "Spoqa", fontSize: 17 }}>
-  //             {item?.poemCaption}
-  //           </Text>
-  //         </View>
-  //       </View>
-  //       {/* 좋아요 와 댓글 */}
-  //       <View style={{ width: windowWidth, padding: 15, marginBottom: 20 }}>
-  //         <PoemLikeAndComment
-  //           likeNumber={item?.poemLikeNumber}
-  //           commentNumber={item?.poemCommentNumber}
-  //           poemId={item?.id}
-  //           isLiked={item?.isLiked}
-  //         />
-  //       </View>
-  //     </View>
-  //   );
-  // };
   return (
     <View
       style={{
@@ -212,147 +96,208 @@ export default function Me() {
       }}
     >
       <InfoNotiBox userId={meData?.me?.id} />
-      {dataLoading ? (
-        <FlatList
-          onEndReachedThreshold={0.3}
-          onEndReached={() => {
-            fpFetchmore({
-              variables: {
-                id: parseInt(meData?.me?.id),
-                offset: parseInt(data.length),
-              },
-            });
-          }}
-          refreshing={refreshing}
-          onRefresh={refresh}
-          keyExtractor={(feed) => feed.id}
-          data={data}
-          renderItem={({ item }) => {
-            if (item.caption !== null) {
-              return (
-                <View style={{ width: windowWidth }}>
-                  {/* 작성자 */}
-                  <WriterBox
-                    writerAvatar={item?.user?.avatar}
-                    writerName={item?.user?.name}
-                    writeTime={item?.createdAt}
-                    editTime={item?.updatedAt}
-                    feedId={item?.id}
-                    writerId={item?.user?.id}
-                  />
-                  {/* 이미지 */}
-                  {item.photos.length > 0 ? (
-                    <ImageSwiper photosArray={item?.photos} />
-                  ) : null}
-                  <View style={{ width: windowWidth, padding: 15 }}>
-                    {/* 글 */}
-                    <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
-                      {item?.caption}
-                    </Text>
-                    {/* 좋아요 와 댓글 */}
-                    <LikeAndComment
-                      likeNumber={item?.likeNumber}
-                      commentNumber={item?.commentNumber}
-                      feedId={item?.id}
-                      isLiked={item?.isLiked}
-                    />
-                  </View>
 
-                  {/* 경계 */}
-                  <View
-                    style={{
-                      height: 13,
-                      width: "100%",
-                    }}
-                  ></View>
-                </View>
-              );
-            } else {
-              return (
-                <View
-                  style={{
-                    width: windowWidth,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <PoemWriterBox
-                    writerAvatar={item?.user?.avatar}
-                    writerName={item?.user?.name}
-                    writeTime={item?.createdAt}
-                    editTime={item?.updatedAt}
-                    feedId={item?.id}
-                    writerId={item?.user?.id}
-                  />
-                  {/* 시 박스 */}
-                  <View
-                    style={{
-                      width: windowWidth * 0.8,
-                      paddingVertical: 20,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: colors.brown,
-                      borderRadius: 5,
-                      marginTop: 10,
-                    }}
-                  >
+      {dataLoading ? (
+        data.length !== 0 ? (
+          <FlatList
+            onEndReachedThreshold={0.3}
+            onEndReached={() =>
+              fpFetchMore({
+                variables: {
+                  offset: data.length,
+                },
+              })
+            }
+            refreshing={refreshing}
+            onRefresh={refresh}
+            keyExtractor={(feed) => feed.id}
+            data={data}
+            renderItem={({ item }) => {
+              if (item.caption !== null) {
+                return (
+                  <View style={{ width: windowWidth }}>
+                    {/* 작성자 */}
+                    <WriterBox
+                      writerAvatar={item?.user?.avatar}
+                      writerName={item?.user?.name}
+                      writeTime={item?.createdAt}
+                      editTime={item?.updatedAt}
+                      feedId={item?.id}
+                      writerId={item?.user?.id}
+                    />
+                    {/* 이미지 */}
+                    {item.photos.length > 0 ? (
+                      <ImageSwiper photosArray={item?.photos} />
+                    ) : null}
+                    <View style={{ width: windowWidth, padding: 15 }}>
+                      {/* 글 */}
+                      {item.caption.length > 196 ? (
+                        seemore ? (
+                          <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
+                            {item?.caption}
+                          </Text>
+                        ) : (
+                          <View>
+                            <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
+                              {item?.caption.substr(0, 196)}
+                            </Text>
+                            <TouchableOpacity onPress={() => setSeemore(true)}>
+                              <Text
+                                style={{
+                                  fontFamily: "Spoqa",
+                                  fontSize: 20,
+                                  fontWeight: "700",
+                                  color: colors.gray,
+                                }}
+                              >
+                                ...더보기
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        )
+                      ) : (
+                        <Text style={{ fontFamily: "Spoqa", fontSize: 22 }}>
+                          {item?.caption}
+                        </Text>
+                      )}
+                      {/* 좋아요 와 댓글 */}
+                      <LikeAndComment
+                        likeNumber={item?.likeNumber}
+                        commentNumber={item?.commentNumber}
+                        feedId={item?.id}
+                        isLiked={item?.isLiked}
+                      />
+                    </View>
+                    {/* 칸막이 */}
                     <View
                       style={{
-                        width: windowWidth * 0.7,
-                        backgroundColor: colors.ivory,
-                        borderRadius: 7,
-                        paddingHorizontal: 20,
-                        paddingVertical: 30,
+                        width: "100%",
+                        height: 10,
+                        backgroundColor: colors.lightGray,
                       }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: "Spoqa",
-                          fontSize: 20,
-                          fontWeight: "700",
-                          marginBottom: 10,
-                          textAlign: "center",
-                        }}
-                      >
-                        {item?.poemTitle}
-                      </Text>
-                      <Text
-                        style={{
-                          fontFamily: "Spoqa",
-                          fontSize: 17,
-                          fontWeight: "700",
-                          textAlign: "right",
-                          marginBottom: 20,
-                        }}
-                      >
-                        {item?.user?.name}
-                      </Text>
-                      <Text style={{ fontFamily: "Spoqa", fontSize: 17 }}>
-                        {item?.poemCaption}
-                      </Text>
-                    </View>
+                    ></View>
+                    {/* 경계 */}
+                    <View
+                      style={{
+                        height: 13,
+                        width: "100%",
+                      }}
+                    ></View>
                   </View>
-                  {/* 좋아요 와 댓글 */}
+                );
+              } else {
+                return (
                   <View
                     style={{
                       width: windowWidth,
-                      padding: 15,
-                      marginBottom: 20,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <PoemLikeAndComment
-                      likeNumber={item?.poemLikeNumber}
-                      commentNumber={item?.poemCommentNumber}
-                      poemId={item?.id}
-                      isLiked={item?.isLiked}
+                    <PoemWriterBox
+                      writerAvatar={item?.user?.avatar}
+                      writerName={item?.user?.name}
+                      writeTime={item?.createdAt}
+                      editTime={item?.updatedAt}
+                      feedId={item?.id}
+                      writerId={item?.user?.id}
                     />
+                    {/* 시 박스 */}
+                    <View
+                      style={{
+                        width: windowWidth * 0.9,
+                        paddingVertical: 20,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "#C69978",
+                        borderRadius: 2,
+                        marginTop: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: windowWidth * 0.8,
+                          backgroundColor: "#FFFEF2",
+                          borderRadius: 4,
+                          paddingHorizontal: 20,
+                          paddingVertical: 30,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: "Spoqa",
+                            fontSize: 20,
+                            fontWeight: "700",
+                            marginBottom: 10,
+                            textAlign: "center",
+                          }}
+                        >
+                          {item?.poemTitle}
+                        </Text>
+                        <Text
+                          style={{
+                            fontFamily: "Spoqa",
+                            fontSize: 17,
+                            fontWeight: "700",
+                            textAlign: "right",
+                            marginBottom: 20,
+                          }}
+                        >
+                          {item?.user?.name}
+                        </Text>
+                        <Text style={{ fontFamily: "Spoqa", fontSize: 17 }}>
+                          {item?.poemCaption}
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 좋아요 와 댓글 */}
+                    <View
+                      style={{
+                        width: windowWidth,
+                        padding: 15,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <PoemLikeAndComment
+                        likeNumber={item?.poemLikeNumber}
+                        commentNumber={item?.poemCommentNumber}
+                        poemId={item?.id}
+                        isLiked={item?.isLiked}
+                      />
+                    </View>
+                    {/* 칸막이 */}
+                    <View
+                      style={{
+                        width: "100%",
+                        height: 10,
+                        backgroundColor: colors.lightGray,
+                      }}
+                    ></View>
+                    {/* 경계 */}
+                    <View style={{ width: "100%", height: 20 }}></View>
                   </View>
-                </View>
-              );
-            }
-          }}
-        />
+                );
+              }
+            }}
+          />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "white",
+            }}
+          >
+            <Text
+              style={{ fontFamily: "Spoqa", fontSize: 20, fontWeight: "700" }}
+            >
+              작성하신 글이 없습니다
+            </Text>
+          </View>
+        )
       ) : (
         <View
           style={{
@@ -360,6 +305,7 @@ export default function Me() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            backgroundColor: "white",
           }}
         >
           <ActivityIndicator size={30} color={colors.mainColor} />

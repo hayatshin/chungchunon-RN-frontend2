@@ -1,26 +1,25 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery, useReactiveVar } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { View, Text, Image, Dimensions, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { colors } from "../colors";
 import { koreaDate } from "../koreaDate";
 import SmallBtn from "./SmallBtn";
 import { useRoute } from "@react-navigation/native";
+import { deleteFeedConfirmVar, deleteFeedVar } from "../apollo";
 
 const ME_QUERY = gql`
   query me {
     me {
       id
       name
-    }
-  }
-`;
-
-const DELETE_FEED_MUTATION = gql`
-  mutation deleteFeed($id: Int!) {
-    deleteFeed(id: $id) {
-      ok
-      error
     }
   }
 `;
@@ -33,42 +32,17 @@ export default function WriterBox({
   writerId,
 }) {
   const navigation = useNavigation();
-  const routename = useRoute().name;
   const { width: windowWidth } = Dimensions.get("window");
   const { data: meData } = useQuery(ME_QUERY);
-
-  // delete feed
-  const onUpdateFeedDelete = (cache, result) => {
-    const {
-      data: {
-        deleteFeed: { ok },
-      },
-    } = result;
-    if (ok) {
-      const cacheFeedId = `Feed:${feedId}`;
-      cache.evict({
-        id: cacheFeedId,
-      });
-    }
-    if (routename === "일상") {
-      navigation.navigate("Tabs", { screen: "일상" });
-    } else if (routename === "나") {
-      navigation.navigate("Tabs", { screen: "나" });
-    } else if (routename === "FriendFeed") {
-      navigation.navigate("FriendFeed");
-    } else if (routename === "시") {
-      navigation.navigate("Tabs", { screen: "시" });
-    }
-  };
-  const [deleteFeedMutation] = useMutation(DELETE_FEED_MUTATION, {
-    variables: { id: parseInt(feedId) },
-    update: onUpdateFeedDelete,
-  });
 
   const completeCreatedTime = koreaDate(writeTime);
 
   const onFeedEditBtn = () => {
     navigation.navigate("EditFeed", { feedId });
+  };
+
+  const deleteClick = () => {
+    navigation.navigate("DeleteFeed", { feedId });
   };
 
   return (
@@ -102,14 +76,12 @@ export default function WriterBox({
             flexDirection: "row",
             justifyContent: "space-between",
             width: windowWidth - 105,
-            marginBottom: 15,
+            marginBottom: 5,
           }}
         >
           {/* 이름 */}
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("FriendFeed", { userId: writerId })
-            }
+            onPress={() => navigation.navigate("FriendFeed", { writerId })}
           >
             <Text
               style={{
@@ -141,7 +113,7 @@ export default function WriterBox({
               <SmallBtn
                 text={"삭제"}
                 color={"main"}
-                pressFunction={deleteFeedMutation}
+                pressFunction={deleteClick}
               />
             </View>
           ) : null}
@@ -155,7 +127,7 @@ export default function WriterBox({
             fontWeight: "600",
           }}
         >
-          {completeCreatedTime} 글 작성
+          {completeCreatedTime}
         </Text>
       </View>
     </View>

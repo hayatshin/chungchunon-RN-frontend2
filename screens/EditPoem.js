@@ -34,8 +34,12 @@ const EDIT_POEM_MUTATION = gql`
 
 export default function EditPoem({ route, navigation }) {
   const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
-  const [title, setTitle] = useState("");
-  const [caption, setCaption] = useState("");
+  const [title, setTitle] = useState(
+    seeCertainPoemData?.seeCertainPoem?.poemTitle
+  );
+  const [caption, setCaption] = useState(
+    seeCertainPoemData?.seeCertainPoem?.poemCaption
+  );
   const [titleClick, setTitleClick] = useState(false);
   const [captionClick, setCaptionClick] = useState(false);
   const poemId = route?.params?.poemId;
@@ -55,8 +59,20 @@ export default function EditPoem({ route, navigation }) {
     } = result;
     if (ok) {
       const cachePoemId = `Poem:${poemId}`;
+      const cacheFPId = `Feedpoem:${poemId}`;
       cache.modify({
         id: cachePoemId,
+        fields: {
+          poemTitle(prev) {
+            return title;
+          },
+          poemCaption(prev) {
+            return caption;
+          },
+        },
+      });
+      cache.modify({
+        id: cacheFPId,
         fields: {
           poemTitle(prev) {
             return title;

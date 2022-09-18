@@ -42,19 +42,19 @@ export default function ImageSwiper({ photosArray }) {
     );
   };
   const renderDoneButton = () => {
-    return (
-      <View
-        style={{
-          width: 40,
-          height: 40,
-          backgroundColor: "rgba(255, 45, 120, 0.6)",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Ionicons name="md-checkmark" color="white" size={30} />
-      </View>
-    );
+    return null;
+    //   <View
+    //     style={{
+    //       width: 40,
+    //       height: 40,
+    //       backgroundColor: "rgba(255, 45, 120, 0.6)",
+    //       justifyContent: "center",
+    //       alignItems: "center",
+    //     }}
+    //   >
+    //     <Ionicons name="md-checkmark" color="white" size={30} />
+    //   </View>
+    // );
   };
   return (
     <AppIntroSlider

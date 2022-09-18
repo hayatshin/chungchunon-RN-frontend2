@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { gql, useMutation } from "@apollo/client";
 
 const TOGGLE_LIKE_MUTATION = gql`
@@ -20,11 +20,19 @@ export default function LikeAndComment({
   commentNumber,
   feedId,
 }) {
+  const screenFocus = useIsFocused();
   const navigation = useNavigation();
   const [screenLiked, setScreenLiked] = useState(isLiked);
   const [screenLikeNumber, setScreenLikeNumber] = useState(likeNumber);
+  const [screencommentNumber, setScreenCommentNubmer] = useState(commentNumber);
 
   // toggleLike
+
+  useEffect(() => {
+    setScreenLiked(isLiked);
+    setScreenLikeNumber(likeNumber);
+    setScreenCommentNubmer(commentNumber);
+  }, [screenFocus]);
 
   const updateToggleLike = async (cache, result) => {
     const {
@@ -33,20 +41,38 @@ export default function LikeAndComment({
       },
     } = result;
     if (ok) {
+      setScreenLiked(!screenLiked);
+      if (screenLiked) {
+        setScreenLikeNumber(parseInt(screenLikeNumber) - 1);
+      } else {
+        setScreenLikeNumber(parseInt(screenLikeNumber) + 1);
+      }
       const cacheFeedId = `Feed:${feedId}`;
-      await cache.modify({
+      const cacheFpId = `Feedpoem:${feedId}`;
+      cache.modify({
         id: cacheFeedId,
         fields: {
           isLiked(prev) {
-            setScreenLiked(!screenLiked);
             return !prev;
           },
           likeNumber(prev) {
             if (screenLiked) {
-              setScreenLikeNumber(parseInt(screenLikeNumber) - 1);
               return prev - 1;
             }
-            setScreenLikeNumber(parseInt(screenLikeNumber) + 1);
+            return prev + 1;
+          },
+        },
+      });
+      cache.modify({
+        id: cacheFpId,
+        fields: {
+          isLiked(prev) {
+            return !prev;
+          },
+          likeNumber(prev) {
+            if (screenLiked) {
+              return prev - 1;
+            }
             return prev + 1;
           },
         },
@@ -54,12 +80,15 @@ export default function LikeAndComment({
     }
   };
 
-  const [toggleLikeMutation, { data }] = useMutation(TOGGLE_LIKE_MUTATION, {
-    variables: {
-      id: parseInt(feedId),
-    },
-    update: updateToggleLike,
-  });
+  const [toggleLikeMutation, { data, refetch }] = useMutation(
+    TOGGLE_LIKE_MUTATION,
+    {
+      variables: {
+        id: parseInt(feedId),
+      },
+      update: updateToggleLike,
+    }
+  );
 
   return (
     <View
@@ -123,7 +152,7 @@ export default function LikeAndComment({
             fontWeight: "700",
           }}
         >
-          댓글 {commentNumber}개 모두 보기
+          댓글 {screencommentNumber}개 보기
         </Text>
       </TouchableOpacity>
     </View>

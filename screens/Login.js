@@ -186,7 +186,15 @@ export default function Login({ navigation }) {
   // 확인 버튼
 
   const mutationComplete = (data) => {
-    logUserIn(data.login.token);
+    console.log(data);
+    if (data?.login?.ok) {
+      console.log("this step work");
+      logUserIn(data.login.token);
+    } else {
+      setVeriBox(true);
+      setVerimessage("회원가입하지 않은 번호입니다.");
+      setDisableConfirm(false);
+    }
   };
 
   const [loginMutation, { loading, data }] = useMutation(LOGIN_MUATION, {
