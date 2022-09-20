@@ -3467,6 +3467,14 @@
     "compare-versions" "^3.4.0"
     "invariant" "^2.2.4"
 
+"expo-sensors@~11.3.0":
+  "integrity" "sha512-rCvvNdgJ5N9ws30HI9oZvugacRO83OeisayjnuOtiCWFAl7ISQBid8/1htD6KXGbi4i0AyvD4Cn2nKTNkmdBVA=="
+  "resolved" "https://registry.npmjs.org/expo-sensors/-/expo-sensors-11.3.0.tgz"
+  "version" "11.3.0"
+  dependencies:
+    "@expo/config-plugins" "^4.0.14"
+    "invariant" "^2.2.4"
+
 "expo-splash-screen@~0.15.0", "expo-splash-screen@~0.15.1":
   "integrity" "sha512-Yvz6p/ig+cQp9c1PLSm1YshpNJXRp/xtxajfwPq2kampf61zA+xnoMk+J6YcNeXeIlqHysj3ND2tMhEEQjM/ow=="
   "resolved" "https://registry.npmjs.org/expo-splash-screen/-/expo-splash-screen-0.15.1.tgz"
@@ -3839,11 +3847,6 @@
   "integrity" "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw=="
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
-
-"fsevents@^2.3.2":
-  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
-  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
-  "version" "2.3.2"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="

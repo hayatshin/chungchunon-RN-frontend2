@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoggedInTabsNav from "./LoggedInTabsNav";
 import WriteFeed from "../screens/WriteFeed";
@@ -14,10 +14,49 @@ import EditPoem from "../screens/EditPoem";
 import PoemComment from "../screens/PoemComment";
 import EditProfile from "../screens/EditProfile";
 import ImageZoomIn from "../screens/ImageZoomIn";
+import { Pedometer } from 'expo-sensors';
 
 const Stack = createNativeStackNavigator();
 
 export default function LoggedInNav() {
+
+  const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
+  const [pastStepCOunt, setPastStepCount] = useState(0);
+  const [currentStepCount, setCurrentStepCount] = useState(0);
+  const _subscription = useRef(null)
+
+  useEffect(() => {
+    _subscribe()
+
+    return (() => {
+      _unsubscribe()
+    })
+  }, [])
+
+  const _subscribe = () => {
+    _subscription.current = Pedometer.watchStepCount(result => {
+      console.log("1111111111", result.steps)
+      setCurrentStepCount(result.steps)
+    });
+
+    Pedometer.isAvailableAsync().then(
+      result => {
+        console.log("22222222222222", String(result))
+        setIsPedometerAvailable(String(result))
+      },
+      error => {
+        console.log('Could not get isPedometerAvailable: ' + error)
+        setIsPedometerAvailable('Could not get isPedometerAvailable: ' + error)
+      }
+    );
+  };
+
+  const _unsubscribe = () => {
+    _subscription.current && _subscription.current.remove();
+    _subscription.current = null;
+  };
+
+
   return (
     <Stack.Navigator
       initialRouteName="Tabs"
