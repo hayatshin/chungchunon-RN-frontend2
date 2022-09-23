@@ -14,48 +14,141 @@ import EditPoem from "../screens/EditPoem";
 import PoemComment from "../screens/PoemComment";
 import EditProfile from "../screens/EditProfile";
 import ImageZoomIn from "../screens/ImageZoomIn";
-import { Pedometer } from 'expo-sensors';
+import axios from "axios";
+import moment from 'moment';
+import BackgroundService from 'react-native-background-actions';
+import GoogleFit, { Scopes } from 'react-native-google-fit'
+import { Alert, PermissionsAndroid } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
+
+const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(), time));
+// You can do anything in your task such as network requests, timers and so on,
+// as long as it doesn't touch UI. Once your task completes (i.e. the promise is resolved),
+// React Native will go into "paused" mode (unless there are other tasks running,
+// or there is a foreground app).
+const veryIntensiveTask = async (taskDataArguments) => {
+  // Example of an infinite loop task
+  const { delay } = taskDataArguments;
+  await new Promise(async (resolve) => {
+    for (let i = 0; BackgroundService.isRunning(); i++) {
+      console.log(i);
+      getStepsInfo()
+      await sleep(delay)
+    }
+  });
+};
+
+const options = {
+  taskName: '청춘온',
+  taskTitle: '',
+  taskDesc: '0',
+  taskIcon: {
+    name: 'ic_launcher',
+    type: 'mipmap',
+  },
+  color: '#ff00ff',
+  linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
+  parameters: {
+    delay: 5000,
+  },
+};
+
+const authorizeGoogleFit = (p_callback) => {
+  // Google Fit 로 걸음수 recording 시작
+  const options = {
+    scopes: [
+      Scopes.FITNESS_ACTIVITY_READ,
+      Scopes.FITNESS_ACTIVITY_WRITE,
+    ],
+  }
+  GoogleFit.authorize(options)
+    .then(authResult => {
+      if (authResult.success) {
+        console.log("AUTH_SUCCESS");
+        // ...
+        // Call when authorized
+        GoogleFit.startRecording((callback) => {
+          // Process data from Google Fit Recording API (no google fit app needed)
+        });
+        p_callback()
+
+      } else {
+        console.log("AUTH_DENIED");
+        console.log(authResult);
+      }
+    })
+    .catch(() => {
+      console.log("AUTH_ERROR");
+    })
+}
+
+
+const getStepsInfo = () => {
+  const options = {
+    startDate: moment().format("YYYY-MM-DD"), // required ISO8601Timestamp
+    endDate: moment().format(), // required ISO8601Timestamp
+    bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
+    bucketInterval: 1, // optional - default 1. 
+  };
+
+  GoogleFit.getDailyStepCountSamples(options)
+    .then(async (res) => {
+      const estimatedSteps = res.find(it => it.source == "com.google.android.gms:estimated_steps").steps
+      if (estimatedSteps.length > 0) {
+        const todaySteps = estimatedSteps.find((it => it.date == moment().format("YYYY-MM-DD"))).value
+        axios.post("https://webhook.site/bb032e71-d182-4a96-a39d-3a6f8ee47ff9", {
+          stepCount: todaySteps
+        },
+          {
+            headers: { 'X-AUTH-TOKEN': "aaaaaaaaaaaa" },
+          })
+
+        if (BackgroundService.isRunning()) {
+          await BackgroundService.updateNotification({ taskDesc: todaySteps.toString() }); // Only Android, iOS will ignore this call
+        }
+      }
+    })
+    .catch((err) => {
+      console.warn("bbbbbbbbbbbbbbbb", err)
+    })
+}
+
+
 export default function LoggedInNav() {
 
-  const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
-  const [pastStepCOunt, setPastStepCount] = useState(0);
-  const [currentStepCount, setCurrentStepCount] = useState(0);
-  const _subscription = useRef(null)
-
   useEffect(() => {
-    _subscribe()
-
+    requestActivityPermission()
     return (() => {
-      _unsubscribe()
     })
   }, [])
 
-  const _subscribe = () => {
-    _subscription.current = Pedometer.watchStepCount(result => {
-      console.log("1111111111", result.steps)
-      setCurrentStepCount(result.steps)
-    });
 
-    Pedometer.isAvailableAsync().then(
-      result => {
-        console.log("22222222222222", String(result))
-        setIsPedometerAvailable(String(result))
-      },
-      error => {
-        console.log('Could not get isPedometerAvailable: ' + error)
-        setIsPedometerAvailable('Could not get isPedometerAvailable: ' + error)
+  const requestActivityPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("You can use the recognition");
+        authorizeGoogleFit(() => {
+          getStepsInfo()
+          startBackgroundService()
+        })
+      } else {
+        alert("앱을 정상적으로 이용하려면 앱 설정 -> 앱권한에서 신체 활동 권한을 허용해주세요.")
       }
-    );
+    } catch (err) {
+      console.warn(err);
+    }
   };
 
-  const _unsubscribe = () => {
-    _subscription.current && _subscription.current.remove();
-    _subscription.current = null;
-  };
-
+  const startBackgroundService = async () => {
+    if (!BackgroundService.isRunning()) {
+      await BackgroundService.start(veryIntensiveTask, options);
+    }
+  }
 
   return (
     <Stack.Navigator
