@@ -1,3 +1,4 @@
+import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useEffect, useRef, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoggedInTabsNav from "./LoggedInTabsNav";
@@ -19,6 +20,7 @@ import moment from 'moment';
 import BackgroundService from 'react-native-background-actions';
 import GoogleFit, { Scopes } from 'react-native-google-fit'
 import { Alert, PermissionsAndroid } from "react-native";
+import { PEDOMETER_FRAGMENT } from "../fragments";
 
 const Stack = createNativeStackNavigator();
 
@@ -87,7 +89,7 @@ const authorizeGoogleFit = (p_callback) => {
 
 const getStepsInfo = () => {
   const options = {
-    startDate: moment().format("YYYY-MM-DD"), // required ISO8601Timestamp
+    startDate: moment(moment().format("YYYY-MM-DD")).format(), // required ISO8601Timestamp
     endDate: moment().format(), // required ISO8601Timestamp
     bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
     bucketInterval: 1, // optional - default 1. 
@@ -116,14 +118,30 @@ const getStepsInfo = () => {
 }
 
 
+const CREATE_PEDOMETER_MUTATION = gql`
+  mutation createPedometer($stepCount: Int!) {
+    createPedometer(stepCount: $stepCount) {
+      ...PedometerFragment
+    }
+  }
+  ${PEDOMETER_FRAGMENT}
+`;
+
 export default function LoggedInNav() {
 
   useEffect(() => {
-    requestActivityPermission()
+    createPedometerMutation()
+    // requestActivityPermission()
     return (() => {
     })
   }, [])
 
+
+  const [createPedometerMutation] = useMutation(CREATE_PEDOMETER_MUTATION, {
+    variables: {
+      stepCount: 142,
+    }
+  });
 
   const requestActivityPermission = async () => {
     try {
@@ -131,10 +149,9 @@ export default function LoggedInNav() {
         PermissionsAndroid.PERMISSIONS.ACTIVITY_RECOGNITION
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log("You can use the recognition");
         authorizeGoogleFit(() => {
           getStepsInfo()
-          startBackgroundService()
+          // startBackgroundService()
         })
       } else {
         alert("앱을 정상적으로 이용하려면 앱 설정 -> 앱권한에서 신체 활동 권한을 허용해주세요.")

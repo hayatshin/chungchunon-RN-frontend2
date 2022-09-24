@@ -119,3 +119,16 @@ export const FEED_POEM_FRAGMENT = gql`
     commentNumber
   }
 `;
+
+export const PEDOMETER_FRAGMENT = gql`
+  fragment PedometerFragment on Pedometer {
+    id
+    user {
+      name
+      avatar
+    }
+    stepCount
+    createdAt
+    updatedAt
+  }
+`;
