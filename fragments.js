@@ -58,10 +58,12 @@ export const ME_FRAGMENT = gql`
     thisweekCommentNumber
     thisweekFeedNumber
     thisweekPoemNumber
+    thisweekStepNumber
     lastweekLikeNumber
     lastweekCommentNumber
     lastweekFeedNumber
     lastweekPoemNumber
+    lastweekStepNumber
   }
 `;
 
