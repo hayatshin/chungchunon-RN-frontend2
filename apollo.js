@@ -9,8 +9,8 @@ export const isLoggedInVar = makeVar(false);
 export const tokenVar = makeVar("");
 
 const uploadHttpLink = createUploadLink({
-  uri: "http://192.168.0.74:4000/graphql",
-  // uri: "https://chungchunon-rn-backend.herokuapp.com/graphql",
+  // uri: "http://192.168.0.74:4000/graphql",
+  uri: "https://chungchunon-rn-backend.herokuapp.com/graphql",
 });
 
 export const logUserIn = async (token) => {
