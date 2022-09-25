@@ -26,26 +26,11 @@ const Stack = createNativeStackNavigator();
 
 
 const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(), time));
-// You can do anything in your task such as network requests, timers and so on,
-// as long as it doesn't touch UI. Once your task completes (i.e. the promise is resolved),
-// React Native will go into "paused" mode (unless there are other tasks running,
-// or there is a foreground app).
-const veryIntensiveTask = async (taskDataArguments) => {
-  // Example of an infinite loop task
-  const { delay } = taskDataArguments;
-  await new Promise(async (resolve) => {
-    for (let i = 0; BackgroundService.isRunning(); i++) {
-      console.log(i);
-      getStepsInfo()
-      await sleep(delay)
-    }
-  });
-};
 
 const options = {
   taskName: '청춘온',
-  taskTitle: '',
-  taskDesc: '0',
+  taskTitle: '0',
+  taskDesc: '',
   taskIcon: {
     name: 'ic_launcher',
     type: 'mipmap',
@@ -86,38 +71,6 @@ const authorizeGoogleFit = (p_callback) => {
     })
 }
 
-
-const getStepsInfo = () => {
-  const options = {
-    startDate: moment(moment().format("YYYY-MM-DD")).format(), // required ISO8601Timestamp
-    endDate: moment().format(), // required ISO8601Timestamp
-    bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
-    bucketInterval: 1, // optional - default 1. 
-  };
-
-  GoogleFit.getDailyStepCountSamples(options)
-    .then(async (res) => {
-      const estimatedSteps = res.find(it => it.source == "com.google.android.gms:estimated_steps").steps
-      if (estimatedSteps.length > 0) {
-        const todaySteps = estimatedSteps.find((it => it.date == moment().format("YYYY-MM-DD"))).value
-        axios.post("https://webhook.site/bb032e71-d182-4a96-a39d-3a6f8ee47ff9", {
-          stepCount: todaySteps
-        },
-          {
-            headers: { 'X-AUTH-TOKEN': "aaaaaaaaaaaa" },
-          })
-
-        if (BackgroundService.isRunning()) {
-          await BackgroundService.updateNotification({ taskDesc: todaySteps.toString() }); // Only Android, iOS will ignore this call
-        }
-      }
-    })
-    .catch((err) => {
-      console.warn("bbbbbbbbbbbbbbbb", err)
-    })
-}
-
-
 const CREATE_PEDOMETER_MUTATION = gql`
   mutation createPedometer($stepCount: Int!) {
     createPedometer(stepCount: $stepCount) {
@@ -130,18 +83,60 @@ const CREATE_PEDOMETER_MUTATION = gql`
 export default function LoggedInNav() {
 
   useEffect(() => {
-    createPedometerMutation()
-    // requestActivityPermission()
+    requestActivityPermission()
+
     return (() => {
     })
   }, [])
 
 
-  const [createPedometerMutation] = useMutation(CREATE_PEDOMETER_MUTATION, {
-    variables: {
-      stepCount: 142,
-    }
-  });
+  const [createPedometerMutation] = useMutation(CREATE_PEDOMETER_MUTATION);
+
+  // You can do anything in your task such as network requests, timers and so on,
+  // as long as it doesn't touch UI. Once your task completes (i.e. the promise is resolved),
+  // React Native will go into "paused" mode (unless there are other tasks running,
+  // or there is a foreground app).
+  const veryIntensiveTask = async (taskDataArguments) => {
+    // Example of an infinite loop task
+    const { delay } = taskDataArguments;
+    await new Promise(async (resolve) => {
+      for (let i = 0; BackgroundService.isRunning(); i++) {
+        console.log(i);
+        getStepsInfo()
+        await sleep(delay)
+      }
+    });
+  };
+
+
+  const getStepsInfo = () => {
+    const options = {
+      startDate: moment(moment().format("YYYY-MM-DD")).format(), // required ISO8601Timestamp
+      endDate: moment().format(), // required ISO8601Timestamp
+      bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
+      bucketInterval: 1, // optional - default 1. 
+    };
+
+    GoogleFit.getDailyStepCountSamples(options)
+      .then(async (res) => {
+        const estimatedSteps = res.find(it => it.source == "com.google.android.gms:estimated_steps").steps
+        if (estimatedSteps.length > 0) {
+          const todaySteps = estimatedSteps.find((it => it.date == moment().format("YYYY-MM-DD"))).value
+          createPedometerMutation({
+            variables: {
+              stepCount: todaySteps,
+            }
+          })
+          if (BackgroundService.isRunning()) {
+            await BackgroundService.updateNotification({ taskTitle: todaySteps.toString() + " 걸음" }); // Only Android, iOS will ignore this call
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("bbbbbbbbbbbbbbbb", err)
+      })
+  }
+
 
   const requestActivityPermission = async () => {
     try {
@@ -151,7 +146,7 @@ export default function LoggedInNav() {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         authorizeGoogleFit(() => {
           getStepsInfo()
-          // startBackgroundService()
+          startBackgroundService()
         })
       } else {
         alert("앱을 정상적으로 이용하려면 앱 설정 -> 앱권한에서 신체 활동 권한을 허용해주세요.")
