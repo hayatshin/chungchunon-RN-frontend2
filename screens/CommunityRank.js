@@ -36,11 +36,13 @@ const SEE_COMMUNNITY_USERS_QUERY = gql`
       thisweekCommentNumber
       thisweekFeedNumber
       thisweekPoemNumber
+      thisweekStepNumber
       lastweekPointNumber
       lastweekLikeNumber
       lastweekCommentNumber
       lastweekFeedNumber
       lastweekPoemNumber
+      lastweekStepNumber
     }
   }
 `;
@@ -57,7 +59,7 @@ const BodyText = styled.Text`
 `;
 
 const MenuBox = styled.TouchableOpacity`
-  width: ${(props) => props.windowWidth / 5}px;
+  width: ${(props) => props.windowWidth / 6}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -92,6 +94,7 @@ export default function CommunityRank({ navigation }) {
   const [commentClick, setCommentClick] = useState(false);
   const [likeClick, setLikeClick] = useState(false);
   const [poemClick, setPoemClick] = useState(false);
+  const [pedometerClick, setPedometerClick] = useState(false);
 
   const [datafinish, setDatafinish] = useState(false);
   const [data, setData] = useState([]);
@@ -192,6 +195,22 @@ export default function CommunityRank({ navigation }) {
           }
         }
         setData(result);
+      } else if (thisweekClick && pedometerClick) {
+        const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
+          return b.thisweekStepNumber - a.thisweekStepNumber;
+        });
+        for (let n = 0; n < sort.length; ++n) {
+          const current = sort[n];
+          result.push({
+            ...current,
+            index,
+          });
+          // See if the next one (if any) matches this one
+          if (sort[n + 1]?.thisweekStepNumber !== current.thisweekStepNumber) {
+            ++index;
+          }
+        }
+        setData(result);
       } else if (!thisweekClick && pointClick) {
         const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
           return b.lastweekPointNumber - a.lastweekPointNumber;
@@ -276,6 +295,22 @@ export default function CommunityRank({ navigation }) {
           }
         }
         setData(result);
+      } else if (!thisweekClick && pedometerClick) {
+        const sort = [...communitydata.seeCommunityUsers].sort(function (a, b) {
+          return b.lastweekStepNumber - a.lastweekStepNumber;
+        });
+        for (let n = 0; n < sort.length; ++n) {
+          const current = sort[n];
+          result.push({
+            ...current,
+            index,
+          });
+          // See if the next one (if any) matches this one
+          if (sort[n + 1]?.lastweekStepNumber !== current.lastweekStepNumber) {
+            ++index;
+          }
+        }
+        setData(result);
       }
     }
   }, [
@@ -285,6 +320,7 @@ export default function CommunityRank({ navigation }) {
     commentClick,
     likeClick,
     poemClick,
+    pedometerClick,
     thisweekClick,
   ]);
 
@@ -306,6 +342,7 @@ export default function CommunityRank({ navigation }) {
     setCommentClick(false);
     setLikeClick(false);
     setPoemClick(false);
+    setPedometerClick(false);
   };
   const feedClickFunction = () => {
     setPointClick(false);
@@ -313,6 +350,7 @@ export default function CommunityRank({ navigation }) {
     setCommentClick(false);
     setLikeClick(false);
     setPoemClick(false);
+    setPedometerClick(false);
   };
 
   const commentClickFunction = () => {
@@ -321,6 +359,7 @@ export default function CommunityRank({ navigation }) {
     setCommentClick(true);
     setLikeClick(false);
     setPoemClick(false);
+    setPedometerClick(false);
   };
 
   const likeClickFunction = () => {
@@ -329,6 +368,7 @@ export default function CommunityRank({ navigation }) {
     setCommentClick(false);
     setLikeClick(true);
     setPoemClick(false);
+    setPedometerClick(false);
   };
 
   const poemClickFunction = () => {
@@ -337,6 +377,16 @@ export default function CommunityRank({ navigation }) {
     setCommentClick(false);
     setLikeClick(false);
     setPoemClick(true);
+    setPedometerClick(false);
+  };
+
+  const pedometerClickFunction = () => {
+    setPointClick(false);
+    setFeedClick(false);
+    setCommentClick(false);
+    setLikeClick(false);
+    setPoemClick(false);
+    setPedometerClick(true);
   };
 
   const refresh = async () => {
@@ -393,6 +443,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{item.thisweekLikeNumber || 0} 개</BodyText>
         ) : thisweekClick && poemClick ? (
           <BodyText>{item.thisweekPoemNumber || 0} 개</BodyText>
+        ) : thisweekClick && pedometerClick ? (
+          <BodyText>{item.thisweekStepNumber || 0} 보</BodyText>
         ) : !thisweekClick && pointClick ? (
           <BodyText>{item.lastweekPointNumber || 0} 개</BodyText>
         ) : !thisweekClick && feedClick ? (
@@ -403,6 +455,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{item.lastweekLikeNumber || 0} 개</BodyText>
         ) : !thisweekClick && poemClick ? (
           <BodyText>{item.lastweekPoemNumber || 0} 개</BodyText>
+        ) : !thisweekClick && pedometerClick ? (
+          <BodyText>{item.lastweekStepNumber || 0} 보</BodyText>
         ) : null}
       </View>
     );
@@ -598,6 +652,17 @@ export default function CommunityRank({ navigation }) {
         >
           <HeaderText>좋아요</HeaderText>
         </MenuBox>
+        <MenuBox
+          windowWidth={windowWidth}
+          height={windowHeight}
+          onPress={pedometerClickFunction}
+          style={{
+            borderBottomWidth: pedometerClick ? 2 : 1,
+            borderColor: pedometerClick ? colors.mainColor : "#ECE7E2",
+          }}
+        >
+          <HeaderText>걸음수</HeaderText>
+        </MenuBox>
       </View>
       {/* 순위 리스트 */}
       <FlatList
@@ -655,6 +720,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{meData?.me?.thisweekLikeNumber || 0} 개</BodyText>
         ) : thisweekClick && poemClick ? (
           <BodyText>{meData?.me?.thisweekPoemNumber || 0} 개</BodyText>
+        ) : thisweekClick && pedometerClick ? (
+          <BodyText>{meData?.me?.thisweekStepNumber || 0} 보</BodyText>
         ) : !thisweekClick && pointClick ? (
           <BodyText>{meData?.me?.lastweekPointNumber || 0} 개</BodyText>
         ) : !thisweekClick && feedClick ? (
@@ -665,6 +732,8 @@ export default function CommunityRank({ navigation }) {
           <BodyText>{meData?.me?.lastweekLikeNumber || 0} 개</BodyText>
         ) : !thisweekClick && poemClick ? (
           <BodyText>{meData?.me?.lastweekPoemNumber || 0} 개</BodyText>
+        ) : !thisweekClick && pedometerClick ? (
+          <BodyText>{meData?.me?.lastweekStepNumber || 0} 보</BodyText>
         ) : null}
       </View>
     </View>
