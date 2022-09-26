@@ -40,13 +40,13 @@ export default function SelectPhoto({ navigation, route }) {
               flexDirection: "row",
             }}
           >
-            <SmallBtn
+            {/* <SmallBtn
               text={"사진 찍기"}
               pressFunction={() => {
                 setSelectPhotos([]);
                 navigation.navigate("TakePhoto", { caption });
               }}
-            />
+            /> */}
             <View style={{ width: 15 }} />
             <SmallBtn
               text={"사진 올리기"}

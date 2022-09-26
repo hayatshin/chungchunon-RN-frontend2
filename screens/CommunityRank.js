@@ -59,7 +59,7 @@ const BodyText = styled.Text`
 `;
 
 const MenuBox = styled.TouchableOpacity`
-  width: ${(props) => props.windowWidth / 6}px;
+  width: ${(props) => props.windowWidth / 5}px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -416,7 +416,7 @@ export default function CommunityRank({ navigation }) {
         {/* 이미지와 이름 */}
         <View
           style={{
-            width: "60%",
+            width: 120,
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
@@ -433,31 +433,40 @@ export default function CommunityRank({ navigation }) {
           />
           <HeaderText>{item.name}</HeaderText>
         </View>
-        {thisweekClick && pointClick ? (
-          <BodyText>{item.thisweekPointNumber || 0} 개</BodyText>
-        ) : thisweekClick && feedClick ? (
-          <BodyText>{item.thisweekFeedNumber || 0} 개</BodyText>
-        ) : thisweekClick && commentClick ? (
-          <BodyText>{item.thisweekCommentNumber || 0} 개</BodyText>
-        ) : thisweekClick && likeClick ? (
-          <BodyText>{item.thisweekLikeNumber || 0} 개</BodyText>
-        ) : thisweekClick && poemClick ? (
-          <BodyText>{item.thisweekPoemNumber || 0} 개</BodyText>
-        ) : thisweekClick && pedometerClick ? (
-          <BodyText>{item.thisweekStepNumber || 0} 보</BodyText>
-        ) : !thisweekClick && pointClick ? (
-          <BodyText>{item.lastweekPointNumber || 0} 개</BodyText>
-        ) : !thisweekClick && feedClick ? (
-          <BodyText>{item.lastweekFeedNumber || 0} 개</BodyText>
-        ) : !thisweekClick && commentClick ? (
-          <BodyText>{item.lastweekCommentNumber || 0} 개</BodyText>
-        ) : !thisweekClick && likeClick ? (
-          <BodyText>{item.lastweekLikeNumber || 0} 개</BodyText>
-        ) : !thisweekClick && poemClick ? (
-          <BodyText>{item.lastweekPoemNumber || 0} 개</BodyText>
-        ) : !thisweekClick && pedometerClick ? (
-          <BodyText>{item.lastweekStepNumber || 0} 보</BodyText>
-        ) : null}
+        <View
+          style={{
+            width: 100,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-end",
+          }}
+        >
+          {thisweekClick && pointClick ? (
+            <BodyText>{item.thisweekPointNumber || 0} 개</BodyText>
+          ) : thisweekClick && feedClick ? (
+            <BodyText>{item.thisweekFeedNumber || 0} 개</BodyText>
+          ) : thisweekClick && commentClick ? (
+            <BodyText>{item.thisweekCommentNumber || 0} 개</BodyText>
+          ) : thisweekClick && likeClick ? (
+            <BodyText>{item.thisweekLikeNumber || 0} 개</BodyText>
+          ) : thisweekClick && poemClick ? (
+            <BodyText>{item.thisweekPoemNumber || 0} 개</BodyText>
+          ) : thisweekClick && pedometerClick ? (
+            <BodyText>{item.thisweekStepNumber || 0} 보</BodyText>
+          ) : !thisweekClick && pointClick ? (
+            <BodyText>{item.lastweekPointNumber || 0} 개</BodyText>
+          ) : !thisweekClick && feedClick ? (
+            <BodyText>{item.lastweekFeedNumber || 0} 개</BodyText>
+          ) : !thisweekClick && commentClick ? (
+            <BodyText>{item.lastweekCommentNumber || 0} 개</BodyText>
+          ) : !thisweekClick && likeClick ? (
+            <BodyText>{item.lastweekLikeNumber || 0} 개</BodyText>
+          ) : !thisweekClick && poemClick ? (
+            <BodyText>{item.lastweekPoemNumber || 0} 개</BodyText>
+          ) : !thisweekClick && pedometerClick ? (
+            <BodyText>{item.lastweekStepNumber || 0} 보</BodyText>
+          ) : null}
+        </View>
       </View>
     );
   };
@@ -641,7 +650,7 @@ export default function CommunityRank({ navigation }) {
         >
           <HeaderText>댓글</HeaderText>
         </MenuBox>
-        <MenuBox
+        {/* <MenuBox
           windowWidth={windowWidth}
           height={windowHeight}
           onPress={likeClickFunction}
@@ -651,7 +660,7 @@ export default function CommunityRank({ navigation }) {
           }}
         >
           <HeaderText>좋아요</HeaderText>
-        </MenuBox>
+        </MenuBox> */}
         <MenuBox
           windowWidth={windowWidth}
           height={windowHeight}
