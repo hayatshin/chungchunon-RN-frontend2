@@ -19,7 +19,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hygea.chungchunon",
+      "bundleIdentifier": "com.chon.chungchunon",
       "buildNumber": "1.0.0",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
@@ -38,7 +38,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION"
       ],
-      "package": "com.hygea.chungchunon",
+      "package": "com.chon.chungchunon",
       "versionCode": 1
     },
     "web": {

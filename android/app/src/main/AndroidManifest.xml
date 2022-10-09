@@ -33,7 +33,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.hygea.chungchunon"/>
+        <data android:scheme="com.chon.chungchunon"/>
       </intent-filter>
     </activity>
 

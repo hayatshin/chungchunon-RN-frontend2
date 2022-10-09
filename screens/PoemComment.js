@@ -251,6 +251,7 @@ export default function PoemComment({ route, navigation }) {
         backgroundColor: "rgba(0, 0, 0, 0.6)",
       }}
     >
+      <StatusBar backgroundColor="rgba(0, 0, 0, 0.6)" />
       {/* 댓글 흰 배경 */}
       {commentLoading ? (
         commentSortArray.length !== 0 ? (

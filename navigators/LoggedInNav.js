@@ -32,7 +32,7 @@ const options = {
   taskTitle: "0",
   taskDesc: "",
   taskIcon: {
-    name: "ic_launcher",
+    name: "ic_chungchunon",
     type: "mipmap",
   },
   color: "#ff00ff",
@@ -118,6 +118,7 @@ export default function LoggedInNav() {
           const todaySteps = estimatedSteps.find(
             (it) => it.date == moment().format("YYYY-MM-DD")
           ).value;
+          console.log("111111111111", todaySteps);
           createPedometerMutation({
             variables: {
               stepCount: todaySteps,

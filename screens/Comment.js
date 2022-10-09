@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Pressable,
   Keyboard,
+  StatusBar,
 } from "react-native";
 import styled from "styled-components/native";
 import { colors } from "../colors";
@@ -249,6 +250,7 @@ export default function Comment({ route, navigation }) {
         backgroundColor: "rgba(0, 0, 0, 0.6)",
       }}
     >
+      <StatusBar backgroundColor="rgba(0, 0, 0, 0.6)" />
       {/* 댓글 흰 배경 */}
       {commentLoading ? (
         commentSortArray.length !== 0 ? (

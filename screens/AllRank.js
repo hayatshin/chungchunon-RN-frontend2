@@ -473,7 +473,7 @@ export default function AllRank({ navigation }) {
           ) : thisweekClick && pedometerClick ? (
             <BodyText>{item.thisweekStepNumber || 0} 보</BodyText>
           ) : !thisweekClick && pointClick ? (
-            <BodyText>{item.lastweekPointNumber || 0} 개</BodyText>
+            <BodyText>{item.lastweekPointNumber || 0} 점</BodyText>
           ) : !thisweekClick && feedClick ? (
             <BodyText>{item.lastweekFeedNumber || 0} 개</BodyText>
           ) : !thisweekClick && commentClick ? (
@@ -719,7 +719,7 @@ export default function AllRank({ navigation }) {
         ) : thisweekClick && pedometerClick ? (
           <BodyText>{meData?.me?.thisweekStepNumber || 0} 보</BodyText>
         ) : !thisweekClick && pointClick ? (
-          <BodyText>{meData?.me?.lastweekPointNumber || 0} 개</BodyText>
+          <BodyText>{meData?.me?.lastweekPointNumber || 0} 점</BodyText>
         ) : !thisweekClick && feedClick ? (
           <BodyText>{meData?.me?.lastweekFeedNumber || 0} 개</BodyText>
         ) : !thisweekClick && commentClick ? (
