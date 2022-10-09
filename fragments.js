@@ -54,11 +54,13 @@ export const ME_FRAGMENT = gql`
       communityName
       communityLogo
     }
+    thisweekPointNumber
     thisweekLikeNumber
     thisweekCommentNumber
     thisweekFeedNumber
     thisweekPoemNumber
     thisweekStepNumber
+    lastweekPointNumber
     lastweekLikeNumber
     lastweekCommentNumber
     lastweekFeedNumber

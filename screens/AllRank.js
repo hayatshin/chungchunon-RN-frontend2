@@ -461,7 +461,7 @@ export default function AllRank({ navigation }) {
           }}
         >
           {thisweekClick && pointClick ? (
-            <BodyText>{item.thisweekPointNumber || 0} 개</BodyText>
+            <BodyText>{item.thisweekPointNumber || 0} 점</BodyText>
           ) : thisweekClick && feedClick ? (
             <BodyText>{item.thisweekFeedNumber || 0} 개</BodyText>
           ) : thisweekClick && commentClick ? (
@@ -707,7 +707,7 @@ export default function AllRank({ navigation }) {
           <HeaderText>{meData?.me?.name}</HeaderText>
         </View>
         {thisweekClick && pointClick ? (
-          <BodyText>{meData?.me?.thisweekPointNumber || 0} 개</BodyText>
+          <BodyText>{meData?.me?.thisweekPointNumber || 0} 점</BodyText>
         ) : thisweekClick && feedClick ? (
           <BodyText>{meData?.me?.thisweekFeedNumber || 0} 개</BodyText>
         ) : thisweekClick && commentClick ? (

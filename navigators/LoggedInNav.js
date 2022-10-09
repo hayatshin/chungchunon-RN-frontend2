@@ -16,27 +16,27 @@ import PoemComment from "../screens/PoemComment";
 import EditProfile from "../screens/EditProfile";
 import ImageZoomIn from "../screens/ImageZoomIn";
 import axios from "axios";
-import moment from 'moment';
-import BackgroundService from 'react-native-background-actions';
-import GoogleFit, { Scopes } from 'react-native-google-fit'
+import moment from "moment";
+import BackgroundService from "react-native-background-actions";
+import GoogleFit, { Scopes } from "react-native-google-fit";
 import { Alert, PermissionsAndroid } from "react-native";
 import { PEDOMETER_FRAGMENT } from "../fragments";
 
 const Stack = createNativeStackNavigator();
 
-
-const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(), time));
+const sleep = (time) =>
+  new Promise((resolve) => setTimeout(() => resolve(), time));
 
 const options = {
-  taskName: '청춘온',
-  taskTitle: '0',
-  taskDesc: '',
+  taskName: "청춘온",
+  taskTitle: "0",
+  taskDesc: "",
   taskIcon: {
-    name: 'ic_launcher',
-    type: 'mipmap',
+    name: "ic_launcher",
+    type: "mipmap",
   },
-  color: '#ff00ff',
-  linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
+  color: "#ff00ff",
+  linkingURI: "yourSchemeHere://chat/jane", // See Deep Linking for more info
   parameters: {
     delay: 5000,
   },
@@ -45,13 +45,10 @@ const options = {
 const authorizeGoogleFit = (p_callback) => {
   // Google Fit 로 걸음수 recording 시작
   const options = {
-    scopes: [
-      Scopes.FITNESS_ACTIVITY_READ,
-      Scopes.FITNESS_ACTIVITY_WRITE,
-    ],
-  }
+    scopes: [Scopes.FITNESS_ACTIVITY_READ, Scopes.FITNESS_ACTIVITY_WRITE],
+  };
   GoogleFit.authorize(options)
-    .then(authResult => {
+    .then((authResult) => {
       if (authResult.success) {
         console.log("AUTH_SUCCESS");
         // ...
@@ -59,8 +56,7 @@ const authorizeGoogleFit = (p_callback) => {
         GoogleFit.startRecording((callback) => {
           // Process data from Google Fit Recording API (no google fit app needed)
         });
-        p_callback()
-
+        p_callback();
       } else {
         console.log("AUTH_DENIED");
         console.log(authResult);
@@ -68,8 +64,8 @@ const authorizeGoogleFit = (p_callback) => {
     })
     .catch(() => {
       console.log("AUTH_ERROR");
-    })
-}
+    });
+};
 
 const CREATE_PEDOMETER_MUTATION = gql`
   mutation createPedometer($stepCount: Int!) {
@@ -81,14 +77,11 @@ const CREATE_PEDOMETER_MUTATION = gql`
 `;
 
 export default function LoggedInNav() {
-
   useEffect(() => {
-    requestActivityPermission()
+    requestActivityPermission();
 
-    return (() => {
-    })
-  }, [])
-
+    return () => {};
+  }, []);
 
   const [createPedometerMutation] = useMutation(CREATE_PEDOMETER_MUTATION);
 
@@ -102,41 +95,45 @@ export default function LoggedInNav() {
     await new Promise(async (resolve) => {
       for (let i = 0; BackgroundService.isRunning(); i++) {
         console.log(i);
-        getStepsInfo()
-        await sleep(delay)
+        getStepsInfo();
+        await sleep(delay);
       }
     });
   };
-
 
   const getStepsInfo = () => {
     const options = {
       startDate: moment(moment().format("YYYY-MM-DD")).format(), // required ISO8601Timestamp
       endDate: moment().format(), // required ISO8601Timestamp
       bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
-      bucketInterval: 1, // optional - default 1. 
+      bucketInterval: 1, // optional - default 1.
     };
 
     GoogleFit.getDailyStepCountSamples(options)
       .then(async (res) => {
-        const estimatedSteps = res.find(it => it.source == "com.google.android.gms:estimated_steps").steps
+        const estimatedSteps = res.find(
+          (it) => it.source == "com.google.android.gms:estimated_steps"
+        ).steps;
         if (estimatedSteps.length > 0) {
-          const todaySteps = estimatedSteps.find((it => it.date == moment().format("YYYY-MM-DD"))).value
+          const todaySteps = estimatedSteps.find(
+            (it) => it.date == moment().format("YYYY-MM-DD")
+          ).value;
           createPedometerMutation({
             variables: {
               stepCount: todaySteps,
-            }
-          })
+            },
+          });
           if (BackgroundService.isRunning()) {
-            await BackgroundService.updateNotification({ taskTitle: todaySteps.toString() + " 걸음" }); // Only Android, iOS will ignore this call
+            await BackgroundService.updateNotification({
+              taskTitle: todaySteps.toString() + " 걸음",
+            }); // Only Android, iOS will ignore this call
           }
         }
       })
       .catch((err) => {
-        console.warn("bbbbbbbbbbbbbbbb", err)
-      })
-  }
-
+        console.warn("bbbbbbbbbbbbbbbb", err);
+      });
+  };
 
   const requestActivityPermission = async () => {
     try {
@@ -145,11 +142,13 @@ export default function LoggedInNav() {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         authorizeGoogleFit(() => {
-          getStepsInfo()
-          startBackgroundService()
-        })
+          getStepsInfo();
+          startBackgroundService();
+        });
       } else {
-        alert("앱을 정상적으로 이용하려면 앱 설정 -> 앱권한에서 신체 활동 권한을 허용해주세요.")
+        alert(
+          "앱을 정상적으로 이용하려면 앱 설정 -> 앱권한에서 신체 활동 권한을 허용해주세요."
+        );
       }
     } catch (err) {
       console.warn(err);
@@ -160,7 +159,7 @@ export default function LoggedInNav() {
     if (!BackgroundService.isRunning()) {
       await BackgroundService.start(veryIntensiveTask, options);
     }
-  }
+  };
 
   return (
     <Stack.Navigator

@@ -1,4 +1,4 @@
-package com.hygea.chungchunon.newarchitecture;
+package com.chon.chungchunon.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.hygea.chungchunon.BuildConfig;
-import com.hygea.chungchunon.newarchitecture.components.MainComponentsRegistry;
-import com.hygea.chungchunon.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.chon.chungchunon.BuildConfig;
+import com.chon.chungchunon.newarchitecture.components.MainComponentsRegistry;
+import com.chon.chungchunon.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
