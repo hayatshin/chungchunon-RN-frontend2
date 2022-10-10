@@ -5,6 +5,7 @@ import { colors } from "../colors";
 import Me from "../screens/Me";
 import RankNav from "./RankNav";
 import Poem from "../screens/Poem";
+import Info from "../screens/Info";
 
 const Tabs = createBottomTabNavigator();
 
@@ -51,11 +52,17 @@ export default function LoggedInTabsNav() {
       />
 
       <Tabs.Screen
-        name="나"
+        name="정보"
         options={{
           tabBarBadgeStyle: {},
         }}
-        component={Me}
+        listeners={({ navigation }) => ({
+          tabPress: (event) => {
+            event.preventDefault();
+            navigation.navigate("Info");
+          },
+        })}
+        component={Info}
       />
     </Tabs.Navigator>
   );

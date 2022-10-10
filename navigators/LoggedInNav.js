@@ -21,6 +21,11 @@ import BackgroundService from "react-native-background-actions";
 import GoogleFit, { Scopes } from "react-native-google-fit";
 import { Alert, PermissionsAndroid } from "react-native";
 import { PEDOMETER_FRAGMENT } from "../fragments";
+import Info from "../screens/Info";
+import Me from "../screens/Me";
+import UseRule from "../screens/UseRule";
+import PersonalInfo from "../screens/PersonalInfoRule";
+import PersonalInfoRule from "../screens/PersonalInfoRule";
 
 const Stack = createNativeStackNavigator();
 
@@ -94,7 +99,7 @@ export default function LoggedInNav() {
     const { delay } = taskDataArguments;
     await new Promise(async (resolve) => {
       for (let i = 0; BackgroundService.isRunning(); i++) {
-        console.log(i);
+        // console.log(i);
         getStepsInfo();
         await sleep(delay);
       }
@@ -118,7 +123,7 @@ export default function LoggedInNav() {
           const todaySteps = estimatedSteps.find(
             (it) => it.date == moment().format("YYYY-MM-DD")
           ).value;
-          console.log("111111111111", todaySteps);
+          // console.log("111111111111", todaySteps);
           createPedometerMutation({
             variables: {
               stepCount: todaySteps,
@@ -357,6 +362,63 @@ export default function LoggedInNav() {
           },
         }}
         component={ImageZoomIn}
+      />
+      <Stack.Screen
+        name="Info"
+        options={{
+          headerShown: false,
+        }}
+        component={Info}
+      />
+      <Stack.Screen
+        name="Me"
+        options={{
+          title: "",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.mainColor,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+          },
+        }}
+        component={Me}
+      />
+      <Stack.Screen
+        name="UseRule"
+        options={{
+          title: "청춘온 이용약관",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.gray,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+            fontSize: 17,
+          },
+        }}
+        component={UseRule}
+      />
+      <Stack.Screen
+        name="PersonalInfoRule"
+        options={{
+          title: "개인정보 처리방침",
+          headerShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: colors.gray,
+          headerTitleStyle: {
+            fontFamily: "Spoqa",
+            fontWeight: "700",
+            fontSize: 17,
+          },
+        }}
+        component={PersonalInfoRule}
       />
     </Stack.Navigator>
   );
